@@ -78,9 +78,14 @@ function bibdk_favourite_user_profile2_tabs () {
  * the form to be displayed on profile tab
  **/
 function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
-  $agencies = $_SESSION['bibdk_favourites'];
-  foreach ( $agencies as $id => $branch )  {
+  $agencies = isset($_SESSION['bibdk_favourites']) ?
+    $_SESSION['bibdk_favourites'] : NULL;
 
+  if( empty($agencies) ) {
+    return;
+  }
+
+  foreach ( $agencies as $id => $branch )  {
     $form[$branch->branchId] = bibdk_favourite_form_element($branch);
     // give each branch a unique class for ajax-handling
     $form[$branch->branchId]['#prefix'] = '<div class="favourite_'.$branch->branchId.'">';
