@@ -5,4 +5,5 @@ core = 7.x
 
 ; tests (needs review - testing against live (dead) webservices)
 files[] = bibdk_favourite.test
+files[] = bibdk_favourite.agencies.inc
 
