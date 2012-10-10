@@ -16,6 +16,16 @@ class AgencyRequest extends TingClientRequest{
   protected $callback;
   protected $outputType; 
   
+  protected $service;
+  
+  public function getService() {
+    return $this->service;
+  }
+  
+  public function setService($value) {
+    $this->service = $value;
+  }
+  
   public function getAction() {
     return $this->action;
   }
@@ -129,8 +139,8 @@ class AgencyRequest extends TingClientRequest{
   }
 
   protected function getRequest(){
-    // sofar only action,agencyId is used
-    $params =  array('action','agencyId');
+    // sofar only action,agencyId,service is used
+    $params =  array('action','agencyId','service');
     foreach ($params as $parameter) {
       $getter = 'get' . ucfirst($parameter);
       if ($value = $this->$getter()) {
