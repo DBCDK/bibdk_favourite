@@ -3,12 +3,16 @@
     Created on : Oct 9, 2012, 6:54:14 AM
     Author     : pjo
     Description:
-        Purpose of the stylesheet follows.
+       simple styles while developing. delete this file later
 */
 
 
 
 input{
 margin-left: 1em;
+}
+
+#bibdk-favourite-user-form-fields{
+    padding:2em;
 }
 

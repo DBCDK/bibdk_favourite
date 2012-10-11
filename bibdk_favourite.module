@@ -141,34 +141,40 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
   foreach ($agencies as $id => $branch) {
     $form['form_favourite_list'][$branch->branchId] = bibdk_favourite_form_element($branch);
     // give each branch a unique class for ajax-handling
-    $form['form_favourite_list'][$branch->branchId]['#prefix'] = '<div class="favourite_' . $id .'">';
+    $form['form_favourite_list'][$branch->branchId]['#prefix'] = '<div class="favourite_' . $id . '">';
     $form['form_favourite_list'][$branch->branchId]['#suffix'] = '</div>';
-    
+
     //$form[$branch->branchId]['more'] = 
-     //   drupal_get_form('bibdk_favourite_user_form_fields', $id);
+    //   drupal_get_form('bibdk_favourite_user_form_fields', $id);
   }
-  
+
   // @TODO; minimal styling to seperate buttons - delete this 
   $form['form_favourite_list']['#title'] = t('Favourites');
   $form['form_favourite_list']['#attached']['css'] = array(
     drupal_get_path('module', 'bibdk_favourite') . '/css/bibdk_favourite.css',
   );
-  
-  
+
+
   return $form;
 }
 
 /**
  * \brief form for displaying user data fields 
  */
+
 /**
  * Render user fields;
  */
-function bibdk_favourite_user_form_fields($form, $form_state,$branchid) {
+function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
+  $form['#branchid'] = array(
+    '#type'=>'hidden',
+    '#value'=>$branchid,
+  );
+  
   $fields = bibdk_favourite_get_agency_fields($branchid);
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
-    $form[$type] = array(      
+    $form[$type] = array(
       '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
@@ -176,12 +182,42 @@ function bibdk_favourite_user_form_fields($form, $form_state,$branchid) {
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
   }
+
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'bibdk_favourite') . '/css/bibdk_favourite.css',
+  );
+  $form['#submit'][] = 'bibdk_favourite_set_userdata';
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value'=> t('SaveHest'),  
+    '#value' => t('SaveHest'),
   );
-  
+
   return $form;
+}
+
+function bibdk_favourite_set_userdata($form, $form_state) {
+  $userdata = array();
+  $valid_fields = array('cpr', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone');
+  foreach ($form_state['values'] as $key => $value) {
+    if (in_array($key,$valid_fields)) {
+      if (!empty($value)) {
+        $userdata[$key] = $value;
+      }
+    }
+  }
+  $agencyid = $form['#branchid']['#value'];
+  bibdk_favourite_save_userdata( $agencyid, $userdata);
+}
+
+function bibdk_favourite_save_userdata( $agencyid, array $userdata) {
+  global $user;
+  if(!ding_user_is_provider_user($user)){
+    return;
+  }
+
+  $creds = ding_user_get_creds($user);
+  $data = serialize($userdata);
+  $response = bibdk_provider_user_save_favourite_data($creds['name'], $agencyid, $data);
 }
 
 /**
@@ -192,10 +228,12 @@ function bibdk_favourite_get_agency_fields($agencyId) {
   $client = new ting_client_class();
   $params = array('action' => 'serviceRequest', 'agencyId' => $agencyId, 'service' => 'userOrderParameters');
   module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.request');
+  // BibdkReservationAgencyFields class from bibdk_reservation
   module_load_include('php', 'bibdk_reservation', 'BibdkReservationAgencyFields');
   $result = $client->do_agency($params);
 
   $service = 'userOrderParameters';
+  // @TODO; method does not belong to bibdk_reservation. put it somewhere else (like some agency thing)
   $res = bibdk_reservation_parse_agency_service_response($result->serviceResponse->$service);
 
   $fields = new bibdkReservationAgencyFields($res);
@@ -257,14 +295,14 @@ function bibdk_favourite_set_favourite($branchId) {
 }
 
 /**
-* Implements hook_menu
-* BIG @TODO access check
+ * Implements hook_menu
+ * BIG @TODO access check
  */
-function bibdk_favourite_menu() {  
-  $items['bibdk_favourite_list/userdata/%'] = array(
+function bibdk_favourite_menu() {
+  $items['overlay/favourite/userdata/%'] = array(
     'title' => t('Edit_favourite_data'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('bibdk_favourite_user_form_fields',2),
+    'page arguments' => array('bibdk_favourite_user_form_fields', 3),
     //'access callback' => 'ding_user_access',
     //'access arguments' => array(1),    
     'access callback' => TRUE,
@@ -273,7 +311,6 @@ function bibdk_favourite_menu() {
 
   return $items;
 }
-
 
 /**
  * 
@@ -299,19 +336,19 @@ function bibdk_favourite_form_element($branch) {
       ),
     ),
     // link to popup where user can edit agencydata
-    'userdata' => array(
-     // '#markup' => l(t('Edit_data'),'user/'.$user->uid.'/edit/bibdk_favourite_list/userdata?agencyid='.$branch->branchId,array('attributes'=>array('class'=>array('bibdk-popup-link','btn','text-darkgrey')))),
-       '#markup' => 
-        l(t('Edit_data'),'bibdk_favourite_list/userdata/'.$branch->branchId,array('attributes'=>array('class'=>array('bibdk-popup-link','btn','text-darkgrey')))),
+    'edit' => array(
+      // '#markup' => l(t('Edit_data'),'user/'.$user->uid.'/edit/bibdk_favourite_list/userdata?agencyid='.$branch->branchId,array('attributes'=>array('class'=>array('bibdk-popup-link','btn','text-darkgrey')))),
+      '#markup' =>
+      l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('class' => array('bibdk-popup-link', 'btn', 'text-darkgrey')))),
     ),
-    'submit' => array(
+    'delete' => array(
       '#name' => 'delete_' . $branch->branchId,
       '#type' => 'submit',
       '#value' => t('Slet'),
       '#ajax' => array(
         'callback' => 'bibdk_favourite_ajax_delete_favourite',
       ),
-    ),    
+    ),
     'branchid' => array(
       '#type' => 'hidden',
       '#value' => $branch->branchId,
@@ -371,7 +408,6 @@ function bibdk_favourite_ajax_delete_favourite($form, $form_state) {
   $branchid = $parts[1];
   // delete from session
   bibdk_favourite_delete_favourite_from_session($branchid);
-  //@TODO delete on webservice
 
   $commands = array();
   $selector = '.favourite_' . $branchid;
