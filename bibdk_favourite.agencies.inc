@@ -35,7 +35,7 @@ function bibdk_favourite_parse_agencies($xml){
           $agency[$child->nodeName] = $child->nodeValue;
        } 
       } 
-    $agencies[] = $agency;
+    $agencies[$agency['oui:agencyId']] = $agency;
   }
   return $agencies;
 //  dpm($xpath->document->saveXML());

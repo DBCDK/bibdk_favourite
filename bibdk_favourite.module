@@ -122,11 +122,23 @@ function bibdk_favourite_user_profile2_tabs() {
   return $ret;
 }
 
-/**
- * the form to be displayed on profile tab
- * */
-function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
-  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+/* function _bibdk_favourite_init_favourites() {
+  if( isset($_SESSION['bibdk_favourites']) ) {
+  unset($_SESSION['bibdk_favourites']);
+  }
+  // try to get from webservice
+  $agencies = _bibdk_favourite_get_from_webservice();
+  if (!empty($agencies)) {
+  // add agencies to session
+  foreach ($agencies as $branch) {
+  bibdk_favourite_add_favourite_to_session($branch);
+  }
+  }
+  } */
+
+function _bibdk_favourite_set_agencies() {
+  $agencies = array();
+
   if (empty($agencies)) {
     // try to get from webservice
     $agencies = _bibdk_favourite_get_from_webservice();
@@ -137,6 +149,19 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
       }
     }
   }
+  //return $agencies;
+}
+
+/**
+ * the form to be displayed on profile tab
+ * */
+function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
+  //$agencies = _bibdk_favourite_get_agencies();
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+  if (empty($agencies)) {
+    _bibdk_favourite_set_agencies();
+  }
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
 
   foreach ($agencies as $id => $branch) {
     $form['form_favourite_list'][$branch->branchId] = bibdk_favourite_form_element($branch);
@@ -167,19 +192,34 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
  */
 function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
   $form['#branchid'] = array(
-    '#type'=>'hidden',
-    '#value'=>$branchid,
+    '#type' => 'hidden',
+    '#value' => $branchid,
   );
+
+  if (!isset($_SESSION['bibdk_favourites'])) {
+    $agencies = _bibdk_favourite_get_from_webservice();
+    foreach ($agencies as $key => $value)
+      $_SESSION['bibdk_favourites'][$key] = $value;
+  }
   
-  $fields = bibdk_favourite_get_agency_fields($branchid);
+  
+  if (isset($_SESSION['bibdk_favourites'][$branchid])) {
+    $fields = bibdk_favourite_get_agency_fields($branchid);
+    $_SESSION['bibdk_favourites'][$branchid]->userParameters = $fields;
+  }
+
+
   foreach ($fields->getUserParameters() as $userParameter) {
+    $value = isset($_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']]) ? $_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']] : NULL;
+    //  dpm($value);
     $type = $userParameter['type'];
     $form[$type] = array(
       '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
-      '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
+      //'#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
+      '#default_value' => isset($value) ? $value : "",
     );
   }
 
@@ -191,33 +231,40 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     '#type' => 'submit',
     '#value' => t('SaveHest'),
   );
-
-  return $form;
+    return $form;
 }
 
 function bibdk_favourite_set_userdata($form, $form_state) {
   $userdata = array();
   $valid_fields = array('cpr', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone');
   foreach ($form_state['values'] as $key => $value) {
-    if (in_array($key,$valid_fields)) {
+    if (in_array($key, $valid_fields)) {
       if (!empty($value)) {
         $userdata[$key] = $value;
       }
     }
   }
   $agencyid = $form['#branchid']['#value'];
-  bibdk_favourite_save_userdata( $agencyid, $userdata);
+  bibdk_favourite_save_userdata($agencyid, $userdata);
+  // clear session
+  if (isset($_SESSION['bibdk_favourites'])) {
+    unset($_SESSION['bibdk_favourites']);
+  }
 }
 
-function bibdk_favourite_save_userdata( $agencyid, array $userdata) {
+function bibdk_favourite_save_userdata($agencyid, array $userdata) {
   global $user;
-  if(!ding_user_is_provider_user($user)){
+  if (!ding_user_is_provider_user($user)) {
     return;
   }
 
   $creds = ding_user_get_creds($user);
   $data = serialize($userdata);
   $response = bibdk_provider_user_save_favourite_data($creds['name'], $agencyid, $data);
+  
+  if( $response !== FALSE ) {
+    drupal_set_message(t('user_changes_saved'));      
+  }
 }
 
 /**
@@ -256,17 +303,20 @@ function _bibdk_favourite_get_from_webservice() {
     module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.agencies');
     module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.request');
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
+
     // get the real agency(branch)      
     $client = new ting_client_class();
     $agencies = array();
-    foreach ($saved_agencies as $agency) {
+    foreach ($saved_agencies as $key => $agency) {
       $params = array('action' => 'findLibraryRequest', 'agencyId' => $agency['oui:agencyId']);
       // call openagency webservice to get full agencies
       // @TODO cache
       $result = $client->do_agency($params);
       if (isset($result->findLibraryResponse->pickupAgency)) {
         // there should be one and only one agency in result
-        $agencies[$agency['oui:agencyId']] = new TingClientAgencyBranch($result->findLibraryResponse->pickupAgency[0]);
+        $obj = new TingClientAgencyBranch($result->findLibraryResponse->pickupAgency[0]);
+        $obj->userdata = unserialize($saved_agencies[$key]['oui:userData']);
+        $agencies[$agency['oui:agencyId']] = $obj;
       }
     }
     return $agencies;
