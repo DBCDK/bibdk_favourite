@@ -1,0 +1,473 @@
+<?php
+
+/**
+ * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
+ * */
+function bibdk_favourite_add_to_vejviser($branch) {
+  $ret = drupal_get_form('bibdk_favourite_select_form', $branch);
+  return drupal_render($ret);
+}
+
+/** \brief button to add a library to favourites
+ * @param type $form
+ * @param type $form_state
+ * @return string 
+ */
+function bibdk_favourite_select_form($form, $form_state) {
+  $form['favourite_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Tilføj til favoritbiblioteker'),
+    '#ajax' => array(
+      'callback' => 'bibdk_favourite_ajax_add_favourite',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Ajax callback function
+ * add favourite to session
+ * set a message
+ * */
+function bibdk_favourite_ajax_add_favourite($form, $form_state) {
+  $branch = $form_state['build_info']['args'][0];
+  $result = bibdk_favourite_add_favourite_to_session($branch);
+
+  drupal_set_message($result);
+
+  // insert a drupal messagebox on branch (class="message_$branchId")
+  $bibname = $_SESSION['bibdk_favourites'][$branch->branchId]->branchName;
+  $text = t('@bibname has been added to your favourite libraries', array('@bibname' => $bibname));
+  $commands = array();
+  $selector = '.messages_' . $branch->branchId;
+  drupal_set_message($text);
+  $commands[] = ajax_command_replace($selector, theme('status_messages'));
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Add favourite library to sesssion
+ * */
+function bibdk_favourite_add_favourite_to_session($branch) {
+  if (!isset($_SESSION)) {
+    drupal_session_initialize();
+    $_SESSION['bibdk_favourites'] = array();
+  }
+
+  // @TODO; save on webservice
+  if (!isset($_SESSION['bibdk_favourites'][$branch->branchId])) {
+    $_SESSION['bibdk_favourites'][$branch->branchId] = $branch;
+    //try to save    
+    $response = _bibdk_favourite_save_on_webservice($branch);
+  }
+}
+
+function _bibdk_favourite_delete_on_webservice($branchId) {
+  global $user;
+  if ($user->uid) {
+    if (ding_user_is_provider_user($user)) {
+      $creds = ding_user_get_creds($user);
+      // check if user is logged in and if so if user is provider user      
+      $response = bibdk_provider_delete_favourite($creds['name'], $branchId);
+
+      return $response;
+    }
+    // user is not provider user
+    // @TODO; return something else
+    return 'FALSE';
+  }
+  // user is not logged in
+  // @TODO; return something else
+  return 'FALSE';
+}
+
+function _bibdk_favourite_save_on_webservice($branch) {
+  // check if user is logged in and if so if user is provider user
+  global $user;
+  if ($user->uid) {
+    if (ding_user_is_provider_user($user)) {
+      $creds = ding_user_get_creds($user);
+      // check if user is logged in and if so if user is provider user
+      $response = bibdk_provider_add_favourite($creds['name'], $branch->branchId);
+      return $response;
+    }
+    // user is not provider user
+    // @TODO; return something else
+    return 'FALSE';
+  }
+  // user is not logged in
+  // @TODO; return something else
+  return 'FALSE';
+}
+
+function bibdk_favourite_delete_favourite_from_session($branchId) {
+
+  if (isset($_SESSION['bibdk_favourites'][$branchId])) {
+    unset($_SESSION['bibdk_favourites'][$branchId]);
+  }
+
+  $ret = _bibdk_favourite_delete_on_webservice($branchId);
+}
+
+/**
+ * Implememts hook_user_profile_tabs (@see ding_user.module)
+ * */
+function bibdk_favourite_user_profile2_tabs() {
+  $ret->label = t('favourites');
+  $ret->form = 'bibdk_favourite_form_view_items_from_session';
+  $ret->type = 'bibdk_favourite_list';
+
+  return $ret;
+}
+
+/* function _bibdk_favourite_init_favourites() {
+  if( isset($_SESSION['bibdk_favourites']) ) {
+  unset($_SESSION['bibdk_favourites']);
+  }
+  // try to get from webservice
+  $agencies = _bibdk_favourite_get_from_webservice();
+  if (!empty($agencies)) {
+  // add agencies to session
+  foreach ($agencies as $branch) {
+  bibdk_favourite_add_favourite_to_session($branch);
+  }
+  }
+  } */
+
+function _bibdk_favourite_set_agencies() {
+  $agencies = array();
+
+  if (empty($agencies)) {
+    // try to get from webservice
+    $agencies = _bibdk_favourite_get_from_webservice();
+    if (!empty($agencies)) {
+      // add agencies to session
+      foreach ($agencies as $branch) {
+        bibdk_favourite_add_favourite_to_session($branch);
+      }
+    }
+  }
+  //return $agencies;
+}
+
+/**
+ * the form to be displayed on profile tab
+ * */
+function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
+  //$agencies = _bibdk_favourite_get_agencies();
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+  if (empty($agencies)) {
+    _bibdk_favourite_set_agencies();
+  }
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+
+  foreach ($agencies as $id => $branch) {
+    $form['form_favourite_list'][$branch->branchId] = bibdk_favourite_form_element($branch);
+    // give each branch a unique class for ajax-handling
+    $form['form_favourite_list'][$branch->branchId]['#prefix'] = '<div class="favourite_' . $id . '">';
+    $form['form_favourite_list'][$branch->branchId]['#suffix'] = '</div>';
+
+    //$form[$branch->branchId]['more'] = 
+    //   drupal_get_form('bibdk_favourite_user_form_fields', $id);
+  }
+
+  // @TODO; minimal styling to seperate buttons - delete this 
+  $form['form_favourite_list']['#title'] = t('Favourites');
+  $form['form_favourite_list']['#attached']['css'] = array(
+    drupal_get_path('module', 'bibdk_favourite') . '/css/bibdk_favourite.css',
+  );
+
+
+  return $form;
+}
+
+/**
+ * \brief form for displaying user data fields 
+ */
+
+/**
+ * Render user fields;
+ */
+function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
+  $form['#branchid'] = array(
+    '#type' => 'hidden',
+    '#value' => $branchid,
+  );
+
+  if (!isset($_SESSION['bibdk_favourites'])) {
+    $agencies = _bibdk_favourite_get_from_webservice();
+    foreach ($agencies as $key => $value)
+      $_SESSION['bibdk_favourites'][$key] = $value;
+  }
+  
+  
+  if (isset($_SESSION['bibdk_favourites'][$branchid])) {
+    $fields = bibdk_favourite_get_agency_fields($branchid);
+    $_SESSION['bibdk_favourites'][$branchid]->userParameters = $fields;
+  }
+
+
+  foreach ($fields->getUserParameters() as $userParameter) {
+    $value = isset($_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']]) ? $_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']] : NULL;
+    //  dpm($value);
+    $type = $userParameter['type'];
+    $form[$type] = array(
+      '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
+      '#title' => $userParameter['field_name'],
+      '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
+      '#required' => $userParameter['required'],
+      //'#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
+      '#default_value' => isset($value) ? $value : "",
+    );
+  }
+
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'bibdk_favourite') . '/css/bibdk_favourite.css',
+  );
+  $form['#submit'][] = 'bibdk_favourite_set_userdata';
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('SaveHest'),
+  );
+    return $form;
+}
+
+function bibdk_favourite_set_userdata($form, $form_state) {
+  $userdata = array();
+  $valid_fields = array('cpr', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone');
+  foreach ($form_state['values'] as $key => $value) {
+    if (in_array($key, $valid_fields)) {
+      if (!empty($value)) {
+        $userdata[$key] = $value;
+      }
+    }
+  }
+  $agencyid = $form['#branchid']['#value'];
+  bibdk_favourite_save_userdata($agencyid, $userdata);
+  // clear session
+  if (isset($_SESSION['bibdk_favourites'])) {
+    unset($_SESSION['bibdk_favourites']);
+  }
+}
+
+function bibdk_favourite_save_userdata($agencyid, array $userdata) {
+  global $user;
+  if (!ding_user_is_provider_user($user)) {
+    return;
+  }
+
+  $creds = ding_user_get_creds($user);
+  $data = serialize($userdata);
+  $response = bibdk_provider_user_save_favourite_data($creds['name'], $agencyid, $data);
+  
+  if( $response !== FALSE ) {
+    drupal_set_message(t('user_changes_saved'));      
+  }
+}
+
+/**
+ * Get fields required by Agency
+ * @return \bibdkReservationUserInput
+ */
+function bibdk_favourite_get_agency_fields($agencyId) {
+  $client = new ting_client_class();
+  $params = array('action' => 'serviceRequest', 'agencyId' => $agencyId, 'service' => 'userOrderParameters');
+  module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.request');
+  // BibdkReservationAgencyFields class from bibdk_reservation
+  module_load_include('php', 'bibdk_reservation', 'BibdkReservationAgencyFields');
+  $result = $client->do_agency($params);
+
+  $service = 'userOrderParameters';
+  // @TODO; method does not belong to bibdk_reservation. put it somewhere else (like some agency thing)
+  $res = bibdk_reservation_parse_agency_service_response($result->serviceResponse->$service);
+
+  $fields = new bibdkReservationAgencyFields($res);
+  return $fields;
+}
+
+/**
+ * \brief Get favourite agencies for the user
+ *  
+ * @global type $user
+ * @return \TingClientAgencyBranch 
+ */
+function _bibdk_favourite_get_from_webservice() {
+  global $user;
+  if (ding_user_is_provider_user($user)) {
+    $creds = ding_user_get_creds($user);
+    // call openuserinfo webservice
+    // @TODO cache
+    $xml = bibdk_provider_get_favourites($creds['name']);
+    module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.agencies');
+    module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.request');
+    $saved_agencies = bibdk_favourite_parse_agencies($xml);
+
+    // get the real agency(branch)      
+    $client = new ting_client_class();
+    $agencies = array();
+    foreach ($saved_agencies as $key => $agency) {
+      $params = array('action' => 'findLibraryRequest', 'agencyId' => $agency['oui:agencyId']);
+      // call openagency webservice to get full agencies
+      // @TODO cache
+      $result = $client->do_agency($params);
+      if (isset($result->findLibraryResponse->pickupAgency)) {
+        // there should be one and only one agency in result
+        $obj = new TingClientAgencyBranch($result->findLibraryResponse->pickupAgency[0]);
+        $obj->userdata = unserialize($saved_agencies[$key]['oui:userData']);
+        $agencies[$agency['oui:agencyId']] = $obj;
+      }
+    }
+    return $agencies;
+  }
+  // user is not ding_provider_user
+  return array();
+}
+
+function bibdk_favourite_set_favourite($branchId) {
+  global $user;
+  if ($user->uid) {
+    if (ding_user_is_provider_user($user)) {
+      $creds = ding_user_get_creds($user);
+      // check if user is logged in and if so if user is provider user      
+      $response = bibdk_provider_set_favourite($creds['name'], $branchId);
+
+      return $response;
+    }
+    // user is not provider user
+    // @TODO; return something else
+    return 'FALSE';
+  }
+  // user is not logged in
+  // @TODO; return something else
+  return 'FALSE';
+}
+
+/**
+ * Implements hook_menu
+ * BIG @TODO access check
+ */
+function bibdk_favourite_menu() {
+  $items['overlay/favourite/userdata/%'] = array(
+    'title' => t('Edit_favourite_data'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bibdk_favourite_user_form_fields', 3),
+    //'access callback' => 'ding_user_access',
+    //'access arguments' => array(1),    
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * 
+ * return a single form element
+ * */
+function bibdk_favourite_form_element($branch) {
+  global $user;
+  $element = array(
+    '#branch' => array(
+      '#type' => 'hidden',
+      '#value' => $branch,
+    ),
+    'agency' => array(
+      '#markup' => $branch->branchName . ':' . $branch->branchId,
+    ),
+    'order' => array(
+      '#name' => 'order_' . $branch->branchId,
+      '#type' => 'submit',
+      '#value' => t('set_OrderAgency'),
+      '#branch' => $branch,
+      '#ajax' => array(
+        'callback' => 'bibdk_favourite_ajax_set_favourite',
+      ),
+    ),
+    // link to popup where user can edit agencydata
+    'edit' => array(
+      // '#markup' => l(t('Edit_data'),'user/'.$user->uid.'/edit/bibdk_favourite_list/userdata?agencyid='.$branch->branchId,array('attributes'=>array('class'=>array('bibdk-popup-link','btn','text-darkgrey')))),
+      '#markup' =>
+      l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('class' => array('bibdk-popup-link', 'btn', 'text-darkgrey')))),
+    ),
+    'delete' => array(
+      '#name' => 'delete_' . $branch->branchId,
+      '#type' => 'submit',
+      '#value' => t('Slet'),
+      '#ajax' => array(
+        'callback' => 'bibdk_favourite_ajax_delete_favourite',
+      ),
+    ),
+    'branchid' => array(
+      '#type' => 'hidden',
+      '#value' => $branch->branchId,
+    ),
+    'branchname' => array(
+      '#type' => 'hidden',
+      '#value' => $branch->branchName,
+    ),
+  );
+  return $element;
+}
+
+/**
+ * ajax callback for setting order agency 
+ */
+function bibdk_favourite_ajax_set_favourite($form, $form_state) {
+  $but = isset($form_state['input']['_triggering_element_name']) ?
+      $form_state['input']['_triggering_element_name'] : NULL;
+
+  if (!isset($but)) {
+    // @TODO; errorhandling
+    return;
+  }
+
+  $parts = explode('_', $but);
+  $branchid = $parts[1];
+  // delete from session
+  bibdk_favourite_set_favourite($branchid);
+  //@TODO delete on webservice
+
+  $commands = array();
+  $selector = '.favourite_' . $branchid;
+  $text = t('Order_library_set');
+  //clear message stack
+  drupal_get_messages();
+  // set message
+  drupal_set_message($text);
+  $commands[] = ajax_command_replace($selector, theme('status_messages'));
+
+  //return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * ajax callback for deleting a favourite library
+ * */
+function bibdk_favourite_ajax_delete_favourite($form, $form_state) {
+  // get the id from the submit button
+  $but = isset($form_state['input']['_triggering_element_name']) ?
+      $form_state['input']['_triggering_element_name'] : NULL;
+
+  if (!isset($but)) {
+    // @TODO; errorhandling
+    return;
+  }
+
+  $parts = explode('_', $but);
+  $branchid = $parts[1];
+  // delete from session
+  bibdk_favourite_delete_favourite_from_session($branchid);
+
+  $commands = array();
+  $selector = '.favourite_' . $branchid;
+  $text = t('Favourite library has been deleted');
+  // clear message stack
+  drupal_get_messages();
+  // set message
+  drupal_set_message($text);
+  $commands[] = ajax_command_replace($selector, theme('status_messages'));
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
