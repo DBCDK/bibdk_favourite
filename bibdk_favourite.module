@@ -166,9 +166,10 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state) {
   foreach ($agencies as $id => $branch) {
     $form['form_favourite_list'][$branch->branchId] = bibdk_favourite_form_element($branch);
     // give each branch a unique class for ajax-handling
-    $form['form_favourite_list'][$branch->branchId]['#prefix'] = '<div class="favourite_' . $id . '">';
+    $form['form_favourite_list'][$branch->branchId]['#prefix'] = '<div class="favourite_wrap_' . $id . '">';
     $form['form_favourite_list'][$branch->branchId]['#suffix'] = '</div>';
-
+    $form['form_favourite_list'][$branch->branchId]['message']['#prefix'] = '<div class="favourite_' . $id . '">';
+    $form['form_favourite_list'][$branch->branchId]['message']['#suffix'] = '</div>';
     //$form[$branch->branchId]['more'] = 
     //   drupal_get_form('bibdk_favourite_user_form_fields', $id);
   }
@@ -208,11 +209,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $_SESSION['bibdk_favourites'][$branchid]->userParameters = $fields;
   }
 
-
   foreach ($fields->getUserParameters() as $userParameter) {
     $value = isset($_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']]) ? $_SESSION['bibdk_favourites'][$branchid]->userdata[$userParameter['type']] : NULL;
-    //  dpm($value);
-    $type = $userParameter['type'];
+      $type = $userParameter['type'];
     $form[$type] = array(
       '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#title' => $userParameter['field_name'],
@@ -329,7 +328,12 @@ function bibdk_favourite_set_favourite($branchId) {
   global $user;
   if ($user->uid) {
     if (ding_user_is_provider_user($user)) {
-      $creds = ding_user_get_creds($user);
+      try {
+        $creds = ding_user_get_creds($user);
+      }
+      catch(Exception $e){
+        // do nothing
+      }
       // check if user is logged in and if so if user is provider user      
       $response = bibdk_provider_set_favourite($creds['name'], $branchId);
 
@@ -376,10 +380,10 @@ function bibdk_favourite_form_element($branch) {
     'agency' => array(
       '#markup' => $branch->branchName . ':' . $branch->branchId,
     ),
-    'order' => array(
-      '#name' => 'order_' . $branch->branchId,
+    'order_'. $branch->branchId => array( 
+      '#name' => 'order_'. $branch->branchId,
       '#type' => 'submit',
-      '#value' => t('set_OrderAgency'),
+      '#value'=>t('select_favourite'),
       '#branch' => $branch,
       '#ajax' => array(
         'callback' => 'bibdk_favourite_ajax_set_favourite',
@@ -417,17 +421,18 @@ function bibdk_favourite_form_element($branch) {
 function bibdk_favourite_ajax_set_favourite($form, $form_state) {
   $but = isset($form_state['input']['_triggering_element_name']) ?
       $form_state['input']['_triggering_element_name'] : NULL;
-
-  if (!isset($but)) {
+  
+   if (!isset($but)) {
     // @TODO; errorhandling
+    die('HEST');
     return;
   }
 
   $parts = explode('_', $but);
+
   $branchid = $parts[1];
-  // delete from session
+
   bibdk_favourite_set_favourite($branchid);
-  //@TODO delete on webservice
 
   $commands = array();
   $selector = '.favourite_' . $branchid;
@@ -437,8 +442,7 @@ function bibdk_favourite_ajax_set_favourite($form, $form_state) {
   // set message
   drupal_set_message($text);
   $commands[] = ajax_command_replace($selector, theme('status_messages'));
-
-  //return array('#type' => 'ajax', '#commands' => $commands);
+  return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
