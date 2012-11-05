@@ -224,17 +224,16 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   $form[$branch->branchId]['#suffix'] = '</div></article>';
 
   $actions = bibdk_favourite_get_action_links($branch);
-
-  $form[$branch->branchId]['library']['#markup'] =
-      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions));
-
-  $form[$branch->branchId]['more_info']['#markup'] =
-      theme('bibdk_favourite_more_info', array('branch' => $branch,
+  
+  $moreinfo = theme('bibdk_favourite_more_info', array('branch' => $branch,
     'openingHours' => theme('bibdk_favourite_opening_hours', array('branch' => $branch,)),
     'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
     'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
     'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
       ));
+
+  $form[$branch->branchId]['library']['#markup'] =
+      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo));      
 
   return $form;
 }
