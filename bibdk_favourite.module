@@ -468,7 +468,7 @@ function bibdk_favourite_get_action_links($branch) {
   $links = array();
   $links[] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'favourite-delete'))));
   $links[] = l(t('set_as_favourite'), 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'favourite-set'))));
-  $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('class' => array('favourite-edit', ' bibdk-popup-link'))));
+  $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('rel'=>array('bibdkFavorite'),'class' => array('favourite-edit', ' bibdk-popup-link'))));
 
   foreach ($links as $link) {
     $item['data'] = $link;
