@@ -19,6 +19,9 @@ function bibdk_favourite_load_agency($xml) {
 function bibdk_favourite_parse_agencies($xml){
   $xpath = bibdk_favourite_load_agency($xml);
 
+  if( !isset($xpath) ) {
+    return FALSE;
+  }
   // grap agencies
   $query = '//agency';
   $nodelist = $xpath->query($query);
