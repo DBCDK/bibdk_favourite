@@ -13,9 +13,3 @@
         $('.'+selector).closest("article").addClass('order-agency');
     }
 })(jQuery);
-
-
-
-  
-  
-  

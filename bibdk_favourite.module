@@ -391,11 +391,13 @@ function _bibdk_favourite_get_from_webservice() {
     }
 // call openuserinfo webservice
     // @TODO cache
-    $xml = bibdk_provider_user_get_favourites($creds['name']);
+    $xml = ding_provider_invoke('user', 'get_favourites', $creds['name']);
+    //$xml = bibdk_provider_user_get_favourites($creds['name']);
     module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.agencies');
 
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
 
+    
     if (!$saved_agencies) {
       drupal_set_message(t('bibdk_favourite_something_went_wrong'), 'error');
       return array();
@@ -416,8 +418,11 @@ function _bibdk_favourite_get_from_webservice() {
         $agencies[$agency['oui:agencyId']] = $obj;
       }
     }
+
     return $agencies;
   }
+  
+  
   // user is not ding_provider_user
   return array();
 }
