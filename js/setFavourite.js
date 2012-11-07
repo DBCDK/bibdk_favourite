@@ -6,7 +6,7 @@
 (function ($){
     // add this function to Drupal ajax commands
     Drupal.ajax.prototype.commands.favourite_set = function(ajax, response, status){
-        // remove order-agency class for all articles
+         // remove order-agency class for all articles
         $('article').removeClass('order-agency');
         // set given artice as selected
         var selector = response['selector'];
