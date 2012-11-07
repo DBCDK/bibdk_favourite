@@ -4,24 +4,23 @@
  * @file
  * Test bibdk favourite implementation.
  */
-
-
 // test deletion of profile type
 /**
  * Check that basic user login functionality works.
  */
 class bibdkFavouriteTest extends DrupalWebTestCase {
+
   function setUp() {
-    $this->profile = 'bibdk';
+    //$this->profile = 'bibdk';
     parent::setUp(array('ding_user', 'profile2', 'ding_provider', 'bibdk_test_provider'));
     // variable_set('bibdk_provider_webservice_url','http://guesstimate.dbc.dk/~pjo/webservices/OpenUserInfo/trunk/server.php');
     // variable_set('bibdk_provider_security_code','testhest');
   }
 
   /**
-   *Info for this test case
+   * Info for this test case
    */
-  public function getInfo(){
+  public function getInfo() {
     return array(
       'name' => 'Bibdk favourite',
       'description' => t('Test the functionality of Bibdk favourites'),
@@ -29,10 +28,22 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     );
   }
 
+  public function testLoginButtonExists() {
+    $this->drupalGet('user/login');
+    $this->assertFieldByName("op", t('Log in'), 'login button exists');
+  }
+  
+  public function testFavouritesExists() {
+    $edit['name'] = 'hest@gmail.com';
+    $edit['pass'] = 'hest';
+    $this->drupalPost('user/login', $edit, t('Log in'), array(), array(), 'user-login', NULL);
+    
+    $this->drupalGet();
+  }
 
   // check if profiletype is created after module has been enabled
   // and user logs in.
-  function testCheckProfileTypeDelete(){
+  function testCheckProfileTypeDelete() {
     //first disable module
     module_disable(array('bibdk_favourite'));
     // assert that profiletype does not exist
@@ -45,10 +56,11 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     // we have to submit the user_login_block form to log in as provider user
     $edit['name'] = 'hest@gmail.com';
     $edit['pass'] = 'hest';
+    $this->drupalPost('user/login', $edit, t('Log in'), array(), array(), 'user-login', NULL);
 
-    $this->drupalPost('user', $edit, 'Log in', array(), array(), 'user-login', NULL );
     // assert that the profiletype has been created when user logs in
     $type = profile2_get_types($profile_type);
-    $this->assertEqual($type->type,$profile_type);
+    $this->assertEqual($type->type, $profile_type);
   }
+
 }
