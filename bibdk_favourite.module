@@ -197,9 +197,6 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
   $form['#title'] = $branch->branchName;
-  $form[$branch->branchId]['#prefix'] = '<article class="library ' . $order_class . '"> <div class="favourite_' . $branch->branchId . '">';
-  $form[$branch->branchId]['#suffix'] = '</div></article>';
-
   $actions = bibdk_favourite_get_action_links($branch);
 
   $moreinfo = theme('bibdk_favourite_more_info', array('branch' => $branch,
@@ -210,7 +207,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
       ));
 
   $form[$branch->branchId]['library']['#markup'] =
-      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo));
+      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
@@ -328,7 +325,7 @@ function bibdk_favourite_set_userdata($form, $form_state) {
   foreach ($form_state['values'] as $key => $value) {
     if (in_array($key, $valid_fields)) {
       if (!empty($value)) {
-        $userdata[$key] = $value; 
+        $userdata[$key] = $value;
       }
     }
   }
@@ -391,10 +388,12 @@ function _bibdk_favourite_get_from_webservice() {
     }
 // call openuserinfo webservice
     // @TODO cache
-    $xml = bibdk_provider_user_get_favourites($creds['name']);
+    $xml = ding_provider_invoke('user', 'get_favourites', $creds['name']);
+    //$xml = bibdk_provider_user_get_favourites($creds['name']);
     module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.agencies');
 
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
+
 
     if (!$saved_agencies) {
       drupal_set_message(t('bibdk_favourite_something_went_wrong'), 'error');
@@ -416,8 +415,11 @@ function _bibdk_favourite_get_from_webservice() {
         $agencies[$agency['oui:agencyId']] = $obj;
       }
     }
+
     return $agencies;
   }
+
+
   // user is not ding_provider_user
   return array();
 }
@@ -526,7 +528,7 @@ function bibdk_favourite_ajax_link_set_favourite($branchId) {
   bibdk_favourite_add_js();
 
   unset($_SESSION['bibdk_favourites']);
-  
+
   $response = bibdk_favourite_set_favourite($branchId);
   if (!$response) {
     $text = _bibdk_favourite_set_error_text($branchId);
@@ -537,13 +539,13 @@ function bibdk_favourite_ajax_link_set_favourite($branchId) {
     $type = 'status';
   }
 
-  
+
   $commands = array();
   //clear message stack
   drupal_get_messages();
   $commands[] = bibdk_favourite_ajax_command($branchId);
   // if $response is not set something went wrong
-  if (!$response) {    
+  if (!$response) {
     drupal_set_message($text, $type);
     $commands[] = ajax_command_append($selector, theme('status_messages'));
   }

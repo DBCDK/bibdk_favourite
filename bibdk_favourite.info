@@ -3,9 +3,8 @@ description = "Handle favourite libraries"
 package = "Bibliotek.dk"
 core = 7.x
 version = 0.1
-
+dependencies[] = ding_provider
 dependencies[] = ting_agency
-dependencies[] = bibdk_provider
 ; tests (needs review - testing against live (dead) webservices)
 files[] = bibdk_favourite.test
 files[] = bibdk_favourite.agencies.inc
