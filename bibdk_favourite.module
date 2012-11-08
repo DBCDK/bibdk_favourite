@@ -85,7 +85,7 @@ function _bibdk_favourite_delete_on_webservice($branchId) {
  * Implements hook_form_FORM_ID_alter
  *
  * @param array $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function bibdk_favourite_form_profile2_form_alter(&$form, &$form_state) {
   // add a submit function
@@ -199,13 +199,15 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   $form['#title'] = $branch->branchName;
   $actions = bibdk_favourite_get_action_links($branch);
 
-  $moreinfo = theme('bibdk_favourite_more_info', array('branch' => $branch,
-    'openingHours' => theme('bibdk_favourite_opening_hours', array('branch' => $branch,)),
-    'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
-    'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
-    'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
-      ));
-
+  $moreinfo = theme('bibdk_favourite_more_info', array(
+    'branch' => $branch,
+    'openingHours' => theme('bibdk_favourite_opening_hours', array(
+      'branch' => $branch,)),
+      'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
+      'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
+      'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
+    )
+  );
   $form[$branch->branchId]['library']['#markup'] =
       theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
@@ -606,14 +608,24 @@ function _bibdk_favourite_set_delete_text($branchId) {
 function bibdk_favourite_theme() {
   return array(
     'bibdk_favourite_library' => array(
+      'variables' => array('branchName' => NULL, 'actions' => NULL, 'moreinfo' => NULL, 'branchid' => NULL),
+      'template' => 'bibdk_favourite_library',
+    ),
+    'bibdk_favourite_more_info' => array(
+      'variables' => array('branch' => NULL,'openingHours' => NULL ),
+      'template' => 'bibdk_favourite_more_info',
+    ),
+/*
+    'bibdk_favourite_library' => array(
       'template' => 'bibdk_favourite_library',
       'variables' => array('actions' => NULL,),
     ),
-    'bibdk_favourite_opening_hours' => array(
-      'variables' => array('branch' => NULL,),
-    ),
     'bibdk_favourite_more_info' => array(
       'template' => 'bibdk_favourite_more_info',
+      'variables' => array('branch' => NULL,),
+    ),
+*/
+    'bibdk_favourite_opening_hours' => array(
       'variables' => array('branch' => NULL,),
     ),
     'bibdk_favourite_tools' => array(
