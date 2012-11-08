@@ -32,13 +32,13 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     $this->drupalGet('user/login');
     $this->assertFieldByName("op", t('Log in'), 'login button exists');
   }
-  
+
   public function testFavouritesExists() {
+
     $edit['name'] = 'hest@gmail.com';
     $edit['pass'] = 'hest';
     $this->drupalPost('user/login', $edit, t('Log in'), array(), array(), 'user-login', NULL);
-    
-    $this->drupalGet();
+
   }
 
   // check if profiletype is created after module has been enabled
