@@ -193,7 +193,7 @@ function bibdk_favourite_get_forms() {
  * the form to be displayed on profile tab
  * */
 function bibdk_favourite_form_view_items_from_session($form, &$form_state, $branch) {
-  $branch = unserialize($branch);
+  $branch = unserialize($branch);  
   // check if given branch is set as order-agency
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
@@ -210,10 +210,11 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
     )
   );
   $form[$branch->branchId]['library']['#markup'] =
-      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId, 'orderlibrary' => ($branch->orderLibrary=='TRUE') ? 'order-agency' : ''));
 
   return $form;
 }
+
 
 /*
  * Implements hook_forms.
@@ -293,9 +294,6 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     '#type' => 'container',
     '#attributes' => array('class' => array('form-section')),
   );
-
-  $form['wrapper']['#title'] = 'HEST';
-  $form['wrapper']['#title_display'] = 'before';
 
   $form['#branchid'] = array(
     '#type' => 'hidden',
