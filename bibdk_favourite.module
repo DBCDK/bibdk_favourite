@@ -356,8 +356,8 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
 }
 
 /** \brief mask a string as *****
- * 
- * @param type $str 
+ *
+ * @param type $str
  * return string masked as *******
  */
 function _bibdk_favourite_mask($str) {
@@ -512,9 +512,9 @@ function bibdk_favourite_get_action_links($branch) {
   // add ajax library to intrepret the use-ajax class
   drupal_add_library('system', 'drupal.ajax');
   $links = array();
-  $links[] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'favourite-delete'))));
-  $links[] = l(t('set_as_favourite'), 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'favourite-set'))));
-  $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('favourite-edit', ' bibdk-popup-link'))));
+  $links[] = l(t('set_as_favourite'), 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency'))));
+  $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
+  $links[] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'delete-favourite'))));
 
   foreach ($links as $link) {
     $item['data'] = $link;
