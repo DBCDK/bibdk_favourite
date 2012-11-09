@@ -62,7 +62,6 @@ function bibdk_favourite_add_favourite_to_session($branch, $save = FALSE) {
   if (!isset($_SESSION['bibdk_favourites'][$branch->branchId])) {
     $_SESSION['bibdk_favourites'][$branch->branchId] = serialize($branch);
     //try to save
-    dpm($branch);
     if ($save) {
       $response = _bibdk_favourite_save_on_webservice($branch);
     }
