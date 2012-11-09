@@ -20,6 +20,9 @@ function bibdk_favourite_select_form($form, $form_state) {
     '#ajax' => array(
       'callback' => 'bibdk_favourite_ajax_add_favourite',
     ),
+    '#attributes' => array(
+      'class' => array('btn-add-library'),
+    ),
   );
   return $form;
 }

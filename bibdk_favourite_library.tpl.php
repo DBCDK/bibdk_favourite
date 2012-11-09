@@ -6,7 +6,7 @@
 //dpm($variables);
 ?>
 
-<div class="element-section padded">
+<div class="element-section">
   <div class="actions">
     <?php print $actions; ?>
   </div>
