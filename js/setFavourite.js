@@ -9,7 +9,7 @@
          // remove order-agency class for all articles
         $('article').removeClass('order-agency');
         // set given artice as selected
-        var selector = response['selector'];
-        $('.'+selector).closest("article").addClass('order-agency');
+        var selector = response['selector'];        
+        $('.'+selector).addClass('order-agency');
     }
 })(jQuery);
