@@ -184,7 +184,7 @@ function bibdk_favourite_get_forms() {
   if (!empty($agencies)) {
     foreach ($agencies as $id => $branch) {
       $form_ids[] = 'bibdk_favourite_' . $id;
-    }
+    } 
     return $form_ids;
   }
 }
@@ -216,6 +216,12 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   $form[$branch->branchId]['library']['#markup'] =
       theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes'=>$classes ,'moreinfo' => $moreinfo, 'branchid' => $branch->branchId ));
 
+  // place branch on top if set as order-agency
+  if( $branch->orderLibrary=='TRUE' ) {
+    $form[$branch->branchId]['#weight'] = -1;
+  } 
+
+  
   return $form;
 }
 
@@ -445,8 +451,7 @@ function _bibdk_favourite_get_from_webservice() {
     module_load_include('inc', 'bibdk_favourite', 'bibdk_favourite.agencies');
 
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
-
-
+   
     if (!$saved_agencies) {
       drupal_set_message(t('bibdk_favourite_something_went_wrong'), 'error');
       return array();
@@ -466,8 +471,7 @@ function _bibdk_favourite_get_from_webservice() {
         $obj->orderLibrary = $saved_agencies[$key]['oui:orderAgency'];
         $agencies[$agency['oui:agencyId']] = $obj;
       }
-    }
-
+    }  
     return $agencies;
   }
 
