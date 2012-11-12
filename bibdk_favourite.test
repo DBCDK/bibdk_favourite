@@ -28,7 +28,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     );
   }
 
-  /* public function testDeleteFavourite() {
+  public function testDeleteFavourite() {
     module_disable('bibdk_provider');
     //$edit['name'] = 'pjohans@gmail.com';
     //$edit['pass'] = '1111';
