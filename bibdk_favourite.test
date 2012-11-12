@@ -11,7 +11,7 @@
 class bibdkFavouriteTest extends DrupalWebTestCase {
 
   function setUp() {
-    $this->profile = 'minimal';
+    //$this->profile = 'minimal';
     parent::setUp(array('ding_user', 'bibdk_test_provider'));
     // variable_set('bibdk_provider_webservice_url','http://guesstimate.dbc.dk/~pjo/webservices/OpenUserInfo/trunk/server.php');
     // variable_set('bibdk_provider_security_code','testhest');
@@ -28,7 +28,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     );
   }
 
-  public function testDeleteFavourite() {
+ /* public function testDeleteFavourite() {
     module_disable('bibdk_provider');
     //$edit['name'] = 'pjohans@gmail.com';
     //$edit['pass'] = '1111';
@@ -54,7 +54,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     $edit['pass'] = 'hest';
     $this->drupalPost('user/login', $edit, t('Log in'), array(), array(), 'user-login', NULL);
 
-  }
+  } */
 
   // check if profiletype is created after module has been enabled
   // and user logs in.
@@ -81,7 +81,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
 
 }
 
-class bibdkFavouriteTestSetFavourite extends DrupalWebTestCase {
+/*class bibdkFavouriteTestSetFavourite extends DrupalWebTestCase {
 
   function setUp() {
     $this->profile = 'bibdk';
@@ -90,9 +90,7 @@ class bibdkFavouriteTestSetFavourite extends DrupalWebTestCase {
     // variable_set('bibdk_provider_security_code','testhest');
   }
 
-  /**
-   * Info for this test case
-   */
+  
   public function getInfo() {
     return array(
       'name' => 'check favourite agency',
@@ -117,4 +115,4 @@ class bibdkFavouriteTestSetFavourite extends DrupalWebTestCase {
     $this->assertTrue(TRUE);
   }
 
-}
+}*/
