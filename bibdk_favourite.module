@@ -211,13 +211,13 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   );
   $classes = array();
   $classes[] = 'favourite_'.$branch->branchId;
-  $classes[] = ($branch->orderLibrary=='TRUE') ? 'order-agency' : NULL;
+  $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary=='TRUE') ? 'order-agency' : NULL;
   
   $form[$branch->branchId]['library']['#markup'] =
       theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes'=>$classes ,'moreinfo' => $moreinfo, 'branchid' => $branch->branchId ));
 
   // place branch on top if set as order-agency
-  if( $branch->orderLibrary=='TRUE' ) {
+  if( isset($branch->orderLibrary) && $branch->orderLibrary=='TRUE' ) {
     $form[$branch->branchId]['#weight'] = -1;
   } 
 
