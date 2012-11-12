@@ -209,8 +209,12 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
       'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
     )
   );
+  $classes = array();
+  $classes[] = 'favourite_'.$branch->branchId;
+  $classes[] = ($branch->orderLibrary=='TRUE') ? 'order-agency' : NULL;
+  
   $form[$branch->branchId]['library']['#markup'] =
-      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId, 'orderlibrary' => ($branch->orderLibrary=='TRUE') ? 'order-agency' : ''));
+      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes'=>$classes ,'moreinfo' => $moreinfo, 'branchid' => $branch->branchId ));
 
   return $form;
 }
@@ -648,13 +652,20 @@ function _bibdk_favourite_set_delete_text($branchId) {
 }
 
 /**
+ * preprocess function for library template (bibdk_favourite_library.tpl.php)
+ */
+function template_preprocess_bibdk_favourite_library(&$variables){
+  $variables['classes_array'] = array_merge($variables['classes_array'],$variables['add_classes']);
+}
+
+/**
  * Implements hook_theme
  * @return type
  */
 function bibdk_favourite_theme() {
   return array(
     'bibdk_favourite_library' => array(
-      'variables' => array('branchName' => NULL, 'actions' => NULL, 'moreinfo' => NULL, 'branchid' => NULL),
+      'variables' => array('branchName' => NULL, 'actions' => NULL, 'moreinfo' => NULL, 'branchid' => NULL, 'add_classes'=> array()),
       'template' => 'bibdk_favourite_library',
     ),
     'bibdk_favourite_more_info' => array(
