@@ -334,7 +334,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     return $form;
   }
   
-  foreach ($fields->getUserParameters() as $userParameter) {
+  foreach ($fields->getUserParameters() as $userParameter) {    
     $value = isset($agency->userdata[$userParameter['type']]) ? $agency->userdata[$userParameter['type']] : NULL;
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
       $value = _bibdk_favourite_mask($value);
@@ -370,7 +370,7 @@ function _bibdk_favourite_mask($str) {
 
 function bibdk_favourite_set_userdata($form, $form_state) {
   $userdata = array();
-  $valid_fields = array('cpr', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone');
+  $valid_fields = array('cpr', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone', 'barcode');
   foreach ($form_state['values'] as $key => $value) {
     if (in_array($key, $valid_fields)) {
       if (!empty($value)) {
