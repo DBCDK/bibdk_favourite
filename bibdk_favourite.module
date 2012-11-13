@@ -212,7 +212,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $bran
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   $form[$branch->branchId]['library']['#markup'] =
-      theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   // place branch on top if set as order-agency
   if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
@@ -333,7 +333,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper']['error'] = array('#markup' => _bibdk_favourite_error_no_agency_user_data());
     return $form;
   }
-
+  
   foreach ($fields->getUserParameters() as $userParameter) {
     $value = isset($agency->userdata[$userParameter['type']]) ? $agency->userdata[$userParameter['type']] : NULL;
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
@@ -346,8 +346,6 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
-      //mask cpr and pincode fields
-
       '#default_value' => isset($value) ? $value : "",
     );
   }
@@ -652,12 +650,7 @@ function _bibdk_favourite_set_delete_text($branchId) {
   return t('Favourite library has been deleted');
 }
 
-/**
- * preprocess function for library template (bibdk_favourite_library.tpl.php)
- */
-function template_preprocess_bibdk_favourite_library(&$variables) {
-  $variables['classes_array'] = array_merge($variables['classes_array'], $variables['add_classes']);
-}
+
 
 /**
  * Implements hook_theme
