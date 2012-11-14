@@ -637,3 +637,102 @@ function _bibdk_favourite_set_delete_text($branchId) {
   return t('Favourite library has been deleted');
 }
 
+/**
+ * preprocess function for library template (bibdk_favourite_library.tpl.php)
+ */
+function template_preprocess_bibdk_favourite_library(&$variables){
+  $variables['classes_array'] = array_merge($variables['classes_array'],$variables['add_classes']);
+}
+
+/**
+ * Implements hook_theme
+ * @return type
+ */
+function bibdk_favourite_theme() {
+  return array(
+    'bibdk_favourite_library' => array(
+      'variables' => array('branchName' => NULL, 'actions' => NULL, 'moreinfo' => NULL, 'branchid' => NULL, 'add_classes'=> array()),
+      'template' => 'template/bibdk_favourite_library',
+    ),
+    'bibdk_favourite_more_info' => array(
+      'variables' => array('branch' => NULL,'openingHours' => NULL ),
+      'template' => 'template/bibdk_favourite_more_info',
+    ),
+/*
+    'bibdk_favourite_library' => array(
+      'template' => 'bibdk_favourite_library',
+      'variables' => array('actions' => NULL,),
+    ),
+    'bibdk_favourite_more_info' => array(
+      'template' => 'bibdk_favourite_more_info',
+      'variables' => array('branch' => NULL,),
+    ),
+*/
+    'bibdk_favourite_opening_hours' => array(
+      'variables' => array('branch' => NULL,),
+    ),
+    'bibdk_favourite_tools' => array(
+      'variables' => array('branch' => NULL,),
+    ),
+    'bibdk_favourite_address' => array(
+      'variables' => array('branch' => NULL,),
+    ),
+    'bibdk_favourite_contact' => array(
+      'variables' => array('branch' => NULL,),
+    ),
+  );
+}
+
+function theme_bibdk_favourite_address($variables) {
+  $branch = $variables['branch'];
+  $address = $branch->getAddress();
+  return $address;
+}
+
+function theme_bibdk_favourite_tools($variables) {
+  $branch = $variables['branch'];
+  $links = $branch->getActionLinks();
+  $items = array();
+  if (!empty($links)) {
+    foreach ($links as $name => $link) {
+      $item['data'] = l($name, $link, array());
+      $items[] = $item;
+    }
+    return theme('item_list', array('items' => $items));
+  }
+}
+
+/**
+ *
+ * return form action elements for favourite form
+ * actions are: set_favourite (button), edit_userdata(link), delete_favourite(button)
+ * */
+function bibdk_favourite_form_elements($branch) {
+  // set as favourite button
+  $element['actions'] = array(
+    'order_' . $branch->branchId => array(
+      '#name' => 'order_' . $branch->branchId,
+      '#type' => 'button',
+      '#value' => t('select_favourite'),
+      '#ajax' => array(
+        'callback' => 'bibdk_favourite_ajax_set_favourite',
+      ),
+    ),
+    'branch' => array(
+      '#type' => 'hiddan',
+      '#value' => $branch->branchId,
+    ),
+    // link to popup where user can edit agencydata
+    'edit' => array('#markup' => l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array()),),
+    // delete button
+    'delete' => array(
+      '#name' => 'delete_' . $branch->branchId,
+      '#type' => 'button',
+      '#value' => t('Slet'),
+      '#ajax' => array(
+        'callback' => 'bibdk_favourite_ajax_delete_favourite',
+      ),
+    ),
+  );
+  return $element;
+}
