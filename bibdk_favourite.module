@@ -494,13 +494,25 @@ function bibdk_favourite_set_favourite($branchId) {
  *
  * @param type $branch
  * @return html (unordered list)
+ * 
+ * NOTICE text and classes are also set in javascript. @see js/setFavourite.js
  */
 function bibdk_favourite_get_action_links($branch) {
   bibdk_favourite_add_js();
   // add ajax library to intrepret the use-ajax class
   drupal_add_library('system', 'drupal.ajax');
+  $order_agency = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? TRUE : FALSE;
+  if( $order_agency ) {
+    $order_txt = t('Order agency');
+    $link_class = 'selected-agency';
+  }
+  else{
+    $order_txt = t('set_as_favourite');
+    $link_class = 'not-selected-agency';
+  }
+  
   $links = array();
-  $links[] = l(t('set_as_favourite'), 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency'))));
+  $links[] = l($order_txt, 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency',$link_class))));
   $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
   $links[] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'delete-favourite'))));
 
