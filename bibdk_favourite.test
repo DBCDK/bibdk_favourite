@@ -4,51 +4,69 @@
  * @file
  * Test bibdk favourite implementation.
  */
-
-
 // test deletion of profile type
 /**
  * Check that basic user login functionality works.
  */
 class bibdkFavouriteTest extends DrupalWebTestCase {
+
   function setUp() {
-    $this->profile = 'bibdk';
-    parent::setUp(array('ding_user', 'profile2', 'ding_provider', 'bibdk_test_provider'));
+    //$this->profile = 'minimal';
+    parent::setUp(array('ding_user', 'bibdk_test_provider','openagency_webservice_mockup'));
     // variable_set('bibdk_provider_webservice_url','http://guesstimate.dbc.dk/~pjo/webservices/OpenUserInfo/trunk/server.php');
     // variable_set('bibdk_provider_security_code','testhest');
   }
 
   /**
-   *Info for this test case
+   * Info for this test case
    */
-  public function getInfo(){
+  public function getInfo() {
     return array(
       'name' => 'Bibdk favourite',
-      'description' => t('Test the functionality of Bibdk favourites'),
+      'description' => t('Test create/delete of bibdk_favourite_list profile2 type'),
       'group' => 'bibliotek.dk',
     );
   }
 
-
   // check if profiletype is created after module has been enabled
   // and user logs in.
-  function testCheckProfileTypeDelete(){
+  function testCheckProfileType() {
+
     //first disable module
     module_disable(array('bibdk_favourite'));
     // assert that profiletype does not exist
     $profile_type = 'bibdk_favourite_list';
     $type = profile2_get_types($profile_type);
-    $this->assertFalse($type);
+    $this->assertFalse($type, $profile_type.' does not exist');
 
     // enable module
     module_enable(array('bibdk_favourite'));
     // we have to submit the user_login_block form to log in as provider user
-    $edit['name'] = 'hest@gmail.com';
-    $edit['pass'] = 'hest';
+    $edit['name'] = 'pjohans@gmail.com';
+    $edit['pass'] = '1111';
+    $this->drupalPost('user/login', $edit, t('Log in'), array(), array(), 'user-login', NULL);
 
-    $this->drupalPost('user', $edit, 'Log in', array(), array(), 'user-login', NULL );
     // assert that the profiletype has been created when user logs in
     $type = profile2_get_types($profile_type);
-    $this->assertEqual($type->type,$profile_type);
+    $this->assertEqual($type->type, $profile_type, $profile_type . ' has been created');
+
+    // get the drupal user just logged in
+    $result = db_query('SELECT uid FROM {sessions} WHERE uid != 0');
+    $users = array();
+    foreach ($result as $row) {
+      $users[] = user_load($row->uid);
+    }
+    // test user is ding_user
+    $this->assertTrue(ding_user_is_provider_user($users[0]), 'user is logged in as ding_user');
+    // assert that correct profile has been bound to user
+    $profile_types = profile2_load_by_user($users[0]);
+    $this->assertTrue(in_array($profile_type, array_keys($profile_types)), $profile_type . ' has been bound to user');
+    
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $this->drupalGet('user/'.$users[0]->uid.'/edit/'.$profile_type);
+    
+    // assert that profile tab is shown
+    $this->assertRaw('favourites','profile tab is set');
   }
 }
