@@ -318,9 +318,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#type' => 'textfield',
-      '#title' => isset($userParameter['field_description']) ? $userParameter['field_description'] : $userParameter['field_name'],
+      '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
       //'#title' => $userParameter['field_name'],
-      //'#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
+      '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
       '#default_value' => isset($value) ? $value : "",
     );
