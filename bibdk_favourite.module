@@ -112,8 +112,7 @@ function bibdk_favourite_profile2_submit($form, $form_state) {
   }
   // clear message stack
   drupal_get_messages();
-  // @TODO set a proper message;
-  drupal_set_message('page_refreshed');
+  drupal_set_message(t('page_refreshed', array(), array('context' => 'bibdk_favourite')));
 }
 
 /** \brief save user on webservice
@@ -309,8 +308,8 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper']['error'] = array('#markup' => _bibdk_favourite_error_no_agency_user_data());
     return $form;
   }
-  
-  foreach ($fields->getUserParameters() as $userParameter) {    
+
+  foreach ($fields->getUserParameters() as $userParameter) {
     $value = isset($agency->userdata[$userParameter['type']]) ? $agency->userdata[$userParameter['type']] : NULL;
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
       $value = _bibdk_favourite_mask($value);
@@ -319,7 +318,8 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#type' => 'textfield',
-      '#title' => $userParameter['field_name'],
+      '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
+      //'#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
       '#default_value' => isset($value) ? $value : "",
@@ -340,8 +340,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
  * return string masked as *******
  */
 function _bibdk_favourite_mask($str) {
-  $mask = preg_replace("/\S/", "*", $str);
-  return substr_replace($str, $mask, 0);
+  //$mask = preg_replace("/\S/", "*", $str);
+  //return substr_replace($str, $mask, 0);
+  return $str;
 }
 
 function bibdk_favourite_set_userdata($form, $form_state) {
@@ -380,7 +381,7 @@ function bibdk_favourite_save_userdata($agencyid, array $userdata) {
   $response = bibdk_provider_user_save_favourite_data($creds['name'], $agencyid, $data);
 
   if ($response !== FALSE) {
-    drupal_set_message(t('user_changes_saved'));
+    drupal_set_message(t('user_changes_saved', array(), array('context' => 'bibdk_favourite')));
   }
   else {
     // @TODO ... do something
@@ -424,7 +425,7 @@ function _bibdk_favourite_get_from_webservice() {
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
 
     if (!$saved_agencies) {
-      drupal_set_message(t('bibdk_favourite_something_went_wrong'), 'error');
+      drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
       return array();
     }
     // get the real agency(branch)
@@ -468,10 +469,10 @@ function bibdk_favourite_add_js() {
 }
 
 /** \brief invoke bibdk_providers user_set_favourite method
- * 
+ *
  * @global $user $user
  * @param mixed $branchId
- * @return boolean 
+ * @return boolean
  */
 function bibdk_favourite_set_favourite($branchId) {
   global $user;
@@ -494,7 +495,7 @@ function bibdk_favourite_set_favourite($branchId) {
  *
  * @param type $branch
  * @return html (unordered list)
- * 
+ *
  * NOTICE text and classes are also set in javascript. @see js/setFavourite.js
  */
 function bibdk_favourite_get_action_links($branch) {
@@ -510,7 +511,7 @@ function bibdk_favourite_get_action_links($branch) {
     $order_txt = t('set_as_favourite');
     $link_class = 'not-selected-agency';
   }
-  
+
   $links = array();
   $links[] = l($order_txt, 'favourite_set/ajax/' . $branch->branchId, array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency',$link_class))));
   $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $branch->branchId, array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
@@ -638,14 +639,14 @@ function bibdk_favourite_ajax_link_delete_favourite($branchId) {
 }
 
 function _bibdk_favourite_set_error_text($branchId) {
-  return t('bibdk_favourite_something_went_wrong');
+  return t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite'));
 }
 
 function _bibdk_favourite_set_favourite_text($branchId) {
-  return t('Favourite library has been set');
+  return t('Favourite library has been set', array(), array('context' => 'bibdk_favourite'));
 }
 
 function _bibdk_favourite_set_delete_text($branchId) {
-  return t('Favourite library has been deleted');
+  return t('Favourite library has been deleted', array(), array('context' => 'bibdk_favourite'));
 }
 
