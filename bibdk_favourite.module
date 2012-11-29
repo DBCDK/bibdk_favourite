@@ -340,8 +340,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
  * return string masked as *******
  */
 function _bibdk_favourite_mask($str) {
-  $mask = preg_replace("/\S/", "*", $str);
-  return substr_replace($str, $mask, 0);
+  //$mask = preg_replace("/\S/", "*", $str);
+  //return substr_replace($str, $mask, 0);
+  return $str;
 }
 
 function bibdk_favourite_set_userdata($form, $form_state) {
