@@ -202,7 +202,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
   $classes[] = ( $fav->getOrderAgency() ) ? 'order-agency' : NULL;
 
   $form[$fav->getAgencyId()]['library']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName'=>$branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
 // place branch on top if set as order-agency
   if ($fav->getOrderAgency()) {
