@@ -1,8 +1,8 @@
 name = Bibdk Favourite
-description = "Handle favourite libraries"
-package = "Bibliotek.dk"
+description = Handle favourite libraries
+package = Bibliotek.dk
 core = 7.x
-version = 7.x-0.4
+version = 7.x-0.5
 dependencies[] = ding_provider
 dependencies[] = ting_agency
 ; tests (needs review - testing against live (dead) webservices)
