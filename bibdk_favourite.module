@@ -69,7 +69,7 @@ function bibdk_favourite_ajax_add_favourite($form, $form_state) {
 /**
  * Add favourite library to sesssion
  * */
-function bibdk_favourite_add_favourite_to_session ($favourite) {
+function bibdk_favourite_add_favourite_to_session($favourite) {
   if (!isset($_SESSION)) {
     drupal_session_initialize();
     $_SESSION['bibdk_favourites'] = array();
@@ -202,7 +202,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
   $classes[] = ( $fav->getOrderAgency() ) ? 'order-agency' : NULL;
 
   $form[$fav->getAgencyId()]['library']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName'=>$branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
 // place branch on top if set as order-agency
   if ($fav->getOrderAgency()) {
@@ -253,7 +253,7 @@ function _bibdk_favourite_set_user_data_page_title($branchid) {
  * Render user fields;
  */
 function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
-
+  bibdk_favourite_add_js();
   if (!isset($_SESSION['bibdk_favourites'])) {
 // get agencies
     _bibdk_favourite_set_agencies();
@@ -300,24 +300,27 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     return $form;
   }
 
-
   $userData = $agency->getUserData();
   foreach ($fields->getUserParameters() as $userParameter) {
     $value = isset($userData[$userParameter['type']]) ? $userData[$userParameter['type']] : NULL;
-    if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
-      $value = _bibdk_favourite_mask($value);
-    }
     $type = $userParameter['type'];
     $form['wrapper'][$type] = array(
-//'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
+//      '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
+      '#attributes' => array('class' => array( (isset($userParameter['field_type']) && $userParameter['field_type']=='password') ? drupal_html_class('bibdk_password_field'):'')),
       '#type' => 'textfield',
       '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
-      //'#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
       '#default_value' => isset($value) ? $value : "",
     );
   }
+
+  // checkbox to unmask password fields
+  $form['wrapper']['uncheck'] = array(
+    '#title' => t('Show_masked_input'),
+    '#type' => 'checkbox',
+    '#attributes' => array('class'=> array(drupal_html_class('bibdk_unmask_password_field'))),  
+  );
 
   $form['#submit'][] = 'bibdk_favourite_set_userdata';
   $form['wrapper']['submit'] = array(
@@ -327,20 +330,10 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
   return $form;
 }
 
-/** \brief mask a string as *****
- *
- * @param type $str
- * return string masked as *******
- */
-function _bibdk_favourite_mask($str) {
-  //$mask = preg_replace("/\S/", "*", $str);
-  //return substr_replace($str, $mask, 0);
-  return $str;
-}
 
 function bibdk_favourite_set_userdata($form, $form_state) {
   $userdata = array();
-  $valid_fields = array('cpr', 'userId','customId','pincode', 'userName', 'userAddress', 'userMail', 'userTelephone', 'barcode');
+  $valid_fields = array('cpr', 'userId','cardno', 'customId', 'pincode', 'userName', 'userAddress', 'userMail', 'userTelephone', 'barcode');
   foreach ($form_state['values'] as $key => $value) {
     if (in_array($key, $valid_fields)) {
       if (!empty($value)) {
@@ -570,12 +563,13 @@ function bibdk_favourite_menu() {
 }
 
 function bibdk_favourite_ajax_command($branchId) {
-
   return array(
     'command' => 'favourite_set',
     'selector' => 'favourite_' . $branchId,
   );
 }
+
+
 
 /**
  * ajax callback for setting order agency
