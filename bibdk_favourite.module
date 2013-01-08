@@ -299,6 +299,13 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper']['error'] = array('#markup' => _bibdk_favourite_error_no_agency_user_data());
     return $form;
   }
+  
+  // checkbox to unmask password fields
+  $form['wrapper']['uncheck'] = array(
+    '#title' => t('Show_masked_input'),
+    '#type' => 'checkbox',
+    '#attributes' => array('class'=> array(drupal_html_class('bibdk_unmask_password_field'))),  
+  );
 
   $userData = $agency->getUserData();
   foreach ($fields->getUserParameters() as $userParameter) {
@@ -315,13 +322,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     );
   }
 
-  // checkbox to unmask password fields
-  $form['wrapper']['uncheck'] = array(
-    '#title' => t('Show_masked_input'),
-    '#type' => 'checkbox',
-    '#attributes' => array('class'=> array(drupal_html_class('bibdk_unmask_password_field'))),  
-  );
-
+  
   $form['#submit'][] = 'bibdk_favourite_set_userdata';
   $form['wrapper']['submit'] = array(
     '#type' => 'submit',
