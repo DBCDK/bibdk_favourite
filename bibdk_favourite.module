@@ -19,7 +19,7 @@ function bibdk_favourite_add_to_vejviser($branchId) {
 function bibdk_favourite_select_form($form, $form_state) {
   $form['favourite_button'] = array(
     '#type' => 'submit',
-    '#value' => t('Tilføj til favoritbiblioteker'),
+    '#value' => t('Add to favorite libraries'),
     '#ajax' => array(
       'callback' => 'bibdk_favourite_ajax_add_favourite',
     ),
@@ -299,12 +299,12 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     $form['wrapper']['error'] = array('#markup' => _bibdk_favourite_error_no_agency_user_data());
     return $form;
   }
-  
+
   // checkbox to unmask password fields
   $form['wrapper']['uncheck'] = array(
     '#title' => t('Show_masked_input'),
     '#type' => 'checkbox',
-    '#attributes' => array('class'=> array(drupal_html_class('bibdk_unmask_password_field'))),  
+    '#attributes' => array('class'=> array(drupal_html_class('bibdk_unmask_password_field'))),
   );
 
   $userData = $agency->getUserData();
@@ -322,7 +322,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     );
   }
 
-  
+
   $form['#submit'][] = 'bibdk_favourite_set_userdata';
   $form['wrapper']['submit'] = array(
     '#type' => 'submit',
@@ -511,10 +511,12 @@ function bibdk_favourite_get_action_links($favourite) {
     $order_txt = t('set_as_favourite');
     $link_class = 'not-selected-agency';
   }
+  $edit_text = ( $favourite->getUserData() ) ? t('edit_user_data', array(), array('context' => 'bibdk_favorite'))
+                                             : t('add_user_data', array(), array('context' => 'bibdk_favorite'));
 
   $links = array();
   $links[] = l($order_txt, 'favourite_set/ajax/' . $favourite->getAgencyId(), array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency', $link_class))));
-  $links[] = l(t('Edit_data'), 'overlay/favourite/userdata/' . $favourite->getAgencyId(), array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
+  $links[] = l($edit_text, 'overlay/favourite/userdata/' . $favourite->getAgencyId(), array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
   $links[] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $favourite->getAgencyId(), array('attributes' => array('class' => array('use-ajax', 'delete-favourite'))));
 
   foreach ($links as $link) {
