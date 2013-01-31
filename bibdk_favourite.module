@@ -447,7 +447,8 @@ function bibdk_favourite_check_agencies($saved_agencies) {
   $agencies = array();
   foreach ($saved_agencies as $key => $agency) {
     $agencies[$agency['oui:agencyId']] = new FavouriteAgency($agency);
-    $agencies[$agency['oui:agencyId']]->setBranch($agency['agencyBranch']);
+    if (isset($agency['agencyBranch']))
+      $agencies[$agency['oui:agencyId']]->setBranch($agency['agencyBranch']);
   }
   return $agencies;
 }
