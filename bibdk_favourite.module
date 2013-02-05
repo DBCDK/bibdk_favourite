@@ -164,7 +164,6 @@ function bibdk_favourite_get_forms() {
     _bibdk_favourite_set_agencies();
   }
   $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
-
   if (!empty($agencies)) {
     foreach ($agencies as $id => $branch) {
       $form_ids[] = 'bibdk_favourite_' . $id;
@@ -176,7 +175,7 @@ function bibdk_favourite_get_forms() {
 /**
  * the form to be displayed on profile tab
  * */
-function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favourite) {
+function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favourite, $weight) {
   require_once('FavouriteAgency.php');
   require_once (DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
   //print_r($favourite);
@@ -208,9 +207,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
       theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
 // place branch on top if set as order-agency
-  if ($fav->getOrderAgency()) {
-    $form[$fav->getAgencyId()]['#weight'] = -1;
-  }
+    $form[$fav->getAgencyId()]['#weight'] = ($fav->getOrderAgency()) ? -1 : $weight;
 
 
   return $form;
@@ -231,11 +228,14 @@ function bibdk_favourite_forms($form_id) {
       _bibdk_favourite_set_agencies();
     }
     $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
-
+    $count = 0;
     foreach ($agencies as $id => $favourite) {
       $forms['bibdk_favourite_' . $id] = array(
         'callback' => 'bibdk_favourite_form_view_items_from_session',
-        'callback arguments' => array($favourite),
+        'callback arguments' => array(
+          'favourite' => $favourite,
+          'weight' => $count++,
+        ),
       );
     }
     return $forms;
@@ -624,6 +624,7 @@ function bibdk_favourite_ajax_link_set_favourite($branchId) {
  * ajax callback for deleting a favourite library
  * */
 function bibdk_favourite_ajax_link_delete_favourite($branchId) {
+  $deleted_agency = unserialize($_SESSION['bibdk_favourites'][$branchId]);
   $response = bibdk_favourite_delete_favourite_from_session($branchId);
 
   if (!$response) {
@@ -636,6 +637,15 @@ function bibdk_favourite_ajax_link_delete_favourite($branchId) {
   }
 
   $commands = array();
+  if($deleted_agency->getOrderAgency()){
+    _bibdk_favourite_set_agencies();
+    $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+    if ($agencies){
+      $agency = unserialize(current($agencies));
+      $commands[] = bibdk_favourite_ajax_command($agency->getAgencyId());
+    }
+
+  }
   $selector = '.favourite_' . $branchId;
 
 // clear message stack
