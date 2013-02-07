@@ -637,7 +637,7 @@ function bibdk_favourite_ajax_link_delete_favourite($branchId) {
   }
 
   $commands = array();
-  if($deleted_agency->getOrderAgency()){
+  if($deleted_agency && $deleted_agency->getOrderAgency()){
     _bibdk_favourite_set_agencies();
     $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
     if ($agencies){
