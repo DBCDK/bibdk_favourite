@@ -137,6 +137,7 @@ function bibdk_favourite_delete_favourite_from_session($branchId) {
  * Implememts hook_user_profile_tabs (@see ding_user.module)
  * */
 function bibdk_favourite_user_profile2_tabs() {
+  $ret = new stdClass();
   $ret->label = t('favourites');
 //$ret->form = 'bibdk_favourite_form_view_items_from_session';
   $ret->form = bibdk_favourite_get_forms();
