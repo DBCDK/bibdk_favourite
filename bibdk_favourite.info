@@ -8,4 +8,4 @@ dependencies[] = ting_agency
 ; tests (needs review - testing against live (dead) webservices)
 files[] = bibdk_favourite.test
 files[] = bibdk_favourite.agencies.inc
-
+files[] = bibdk_favourite.mypage.inc

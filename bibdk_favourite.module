@@ -1,7 +1,10 @@
 <?php
 
+require_once('bibdk_favourite.mypage.inc');
+
 require_once (DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
+
 
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
