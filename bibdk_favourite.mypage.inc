@@ -26,6 +26,7 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
   );
 
   $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
+
   if ( sizeof($agencies) > 0 ) {
     $agencies = array_slice($agencies, 0, $max_rows);
     foreach ($agencies as $id => $favourite) {
@@ -47,9 +48,11 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
     }
   }
   else {
-    $form['bibdk_favourite']['rows'] = array(
+    $form['bibdk_favourite']['rows'][] = array(
+      'item_row'  => array(
         '#type'     => 'markup',
-        '#markup'   => t('No favorites selected yet'),
+        '#markup'   => t('No favourites selected yet'),
+       ),
     );
   }
 
