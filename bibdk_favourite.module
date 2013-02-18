@@ -171,6 +171,20 @@ function bibdk_favourite_get_forms() {
     }
     return $form_ids;
   }
+  return 'bibdk_favourite_empty_favourite_form';
+}
+
+function bibdk_favourite_empty_favourite_form($form, &$form_state){
+  $form['container'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('element-section'),
+    ),
+  );
+  $form['container']['no_agencies'] = array(
+    '#markup' => t('no_favourites_saved'),
+  );
+  return $form;
 }
 
 /**
@@ -413,7 +427,7 @@ function _bibdk_favourite_get_from_webservice() {
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
 
     if (!$saved_agencies) {
-      drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
+      //drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
       return array();
     }
     // get the real agency(branch)
