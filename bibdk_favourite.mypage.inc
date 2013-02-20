@@ -26,7 +26,7 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
   );
 
   $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
-
+  usort($agencies, '_favorite_sort');
   if ( sizeof($agencies) > 0 ) {
     $agencies = array_slice($agencies, 0, $max_rows);
     foreach ($agencies as $id => $favourite) {
@@ -67,3 +67,7 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
   return $form;
 }
 
+function _favorite_sort($a,$b) {
+  if ( unserialize($a)->orderAgency == unserialize($b)->orderAgency ) return 0;
+  return ( unserialize($a)->orderAgency < unserialize($b)->orderAgency ) ? 1 : -1;
+}
