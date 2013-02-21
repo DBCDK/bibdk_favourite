@@ -83,8 +83,6 @@ function bibdk_favourite_add_favourite_to_session($favourite) {
 
   if (!isset($_SESSION['bibdk_favourites'][$favourite->getAgencyId()])) {
     $_SESSION['bibdk_favourites'][$favourite->getAgencyId()] = serialize($favourite);
- // if (!isset($_SESSION['bibdk_favourites']) ){
- //   unset($_SESSION['bibdk_favourites']);
   }
 }
 
