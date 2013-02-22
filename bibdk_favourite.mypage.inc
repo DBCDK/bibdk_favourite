@@ -25,12 +25,12 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
     '#tree'         => TRUE,
   );
 
-  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
+  $agencies = _bibdk_favourite_get_from_webservice();
+
   usort($agencies, '_favorite_sort');
   if ( sizeof($agencies) > 0 ) {
     $agencies = array_slice($agencies, 0, $max_rows);
     foreach ($agencies as $id => $favourite) {
-      $favourite = unserialize($favourite);
       $branch = $favourite->getBranch();
       if (empty($branch)) {
         break;
@@ -68,6 +68,6 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
 }
 
 function _favorite_sort($a,$b) {
-  if ( unserialize($a)->orderAgency == unserialize($b)->orderAgency ) return 0;
-  return ( unserialize($a)->orderAgency < unserialize($b)->orderAgency ) ? 1 : -1;
+  if ( $a->orderAgency == $b->orderAgency ) return 0;
+  return ( $a->orderAgency < $b->orderAgency ) ? 1 : -1;
 }
