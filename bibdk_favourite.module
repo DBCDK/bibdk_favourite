@@ -1,7 +1,10 @@
 <?php
 
+require_once('bibdk_favourite.mypage.inc');
+
 require_once (DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
+
 
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
@@ -72,7 +75,13 @@ function bibdk_favourite_ajax_add_favourite($form, $form_state) {
 function bibdk_favourite_add_favourite_to_session($favourite) {
   if (!isset($_SESSION)) {
     drupal_session_initialize();
+  }
+  
+  // special case. user logs in and selects a favourite BEFORE
+  // going to favourite_list
+  if( !isset($_SESSION['bibdk_favourites']) ) {
     $_SESSION['bibdk_favourites'] = array();
+    _bibdk_favourite_set_agencies();
   }
 
   if (!isset($_SESSION['bibdk_favourites'][$favourite->getAgencyId()])) {
@@ -147,6 +156,9 @@ function bibdk_favourite_user_profile2_tabs() {
   return $ret;
 }
 
+/** \brief get favourites from webservice and add them to session
+ * 
+ */
 function _bibdk_favourite_set_agencies() {
 // try to get from webservice
   $agencies = _bibdk_favourite_get_from_webservice();
@@ -171,6 +183,20 @@ function bibdk_favourite_get_forms() {
     }
     return $form_ids;
   }
+  return 'bibdk_favourite_empty_favourite_form';
+}
+
+function bibdk_favourite_empty_favourite_form($form, &$form_state){
+  $form['container'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('element-section'),
+    ),
+  );
+  $form['container']['no_agencies'] = array(
+    '#markup' => t('no_favourites_saved'),
+  );
+  return $form;
 }
 
 /**
@@ -221,7 +247,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
  * add a form for each of a users favourite agencies.
  */
 
-function bibdk_favourite_forms($form_id) {
+function bibdk_favourite_forms($form_id) {  
 // is this a bibdk_favourite form ?
   if (strpos($form_id, 'bibdk_favourite_') === 0) {
     $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
@@ -413,7 +439,7 @@ function _bibdk_favourite_get_from_webservice() {
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
 
     if (!$saved_agencies) {
-      drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
+      //drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
       return array();
     }
     // get the real agency(branch)
