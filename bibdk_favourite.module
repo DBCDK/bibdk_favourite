@@ -5,7 +5,6 @@ require_once('bibdk_favourite.mypage.inc');
 require_once (DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
 
-
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
  * */
@@ -43,6 +42,33 @@ function bibdk_favourite_select_form($form, $form_state) {
     ),
   );
   return $form;
+}
+
+/**
+ * Implements hook_form_FORMID_alter (profile2_form) 
+ */
+function bibdk_favourite_form_profile2_form_alter(&$form, &$form_state) {
+  if ($form['#user_category'] == 'bibdk_favourite_list') {
+    $form['vejviser_link'] = _bibdk_favourite_get_vejviser_link();
+  }
+}
+
+function _bibdk_favourite_get_vejviser_link() {
+  $render = array(
+    'link' => array(
+      '#type' => 'link',
+      '#title' => t("Find library"),
+      '#href' => 'vejviser',
+      '#options' => array(
+        'html' => TRUE,
+      ),
+      '#attributes' => array(
+        'class' => array('element-target', 'bibdk-favourite-vejviser-link'),
+      ),
+    ),
+    '#weight' => -1000,
+  );
+  return $render;
 }
 
 /**
@@ -209,14 +235,14 @@ function bibdk_favourite_check_for_new_agency() {
           // get the agency
           $agency = new TingAgency($_GET['agency']);
           $name = $agency->getBranch()->branchName;
- 
+
           // set a message
           $editpath = 'overlay/favourite/userdata/' . $_GET['agency'];
           $options = array('attributes' => array('class' => array(' bibdk-popup-link')));
           $linktext = t('add_user_data', array(), array('context' => 'bibdk_favorite'));
           $link = l($linktext, $editpath, $options);
-          $text = t('%bibname has been added. Remember to ', array('%bibname'=>$name), array('context' => 'bibdk_favourite'));
-          drupal_set_message($text.$link);
+          $text = t('%bibname has been added. Remember to ', array('%bibname' => $name), array('context' => 'bibdk_favourite'));
+          drupal_set_message($text . $link);
         }
       }
     }
