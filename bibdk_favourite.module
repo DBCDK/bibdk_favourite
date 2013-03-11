@@ -232,18 +232,18 @@ function bibdk_favourite_check_for_new_agency() {
         if (isset($_SESSION['bibdk_favourites'])) {
           // unset favourites to reload from webservice
           unset($_SESSION['bibdk_favourites']);
-          // get the agency
-          $agency = new TingAgency($_GET['agency']);
-          $name = $agency->getBranch()->branchName;
-
-          // set a message
-          $editpath = 'overlay/favourite/userdata/' . $_GET['agency'];
-          $options = array('attributes' => array('class' => array(' bibdk-popup-link')));
-          $linktext = t('add_user_data', array(), array('context' => 'bibdk_favorite'));
-          $link = l($linktext, $editpath, $options);
-          $text = t('%bibname has been added. Remember to ', array('%bibname' => $name), array('context' => 'bibdk_favourite'));
-          drupal_set_message($text . $link);
         }
+        // get the agency
+        $agency = new TingAgency($_GET['agency']);
+        $name = $agency->getBranch()->branchName;
+
+        // set a message
+        $editpath = 'overlay/favourite/userdata/' . $_GET['agency'];
+        $options = array('attributes' => array('class' => array(' bibdk-popup-link')));
+        $linktext = t('add_user_data', array(), array('context' => 'bibdk_favorite'));
+        $link = l($linktext, $editpath, $options);
+        $text = t('%bibname has been added. Remember to ', array('%bibname' => $name), array('context' => 'bibdk_favourite'));
+        drupal_set_message($text . $link);
       }
     }
   }
