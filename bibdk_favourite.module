@@ -618,8 +618,8 @@ function bibdk_favourite_set_favourite($branchId) {
 
 /** \brief get links for editing favourite agency (delete, set as order-agency, edit user data)
  *
- * @param type $branch
- * @return html (unordered list)
+ * @param FavouriteAgency $favourite
+ * @return String $links HTML (unordered list)
  *
  * NOTICE text and classes are also set in javascript. @see js/setFavourite.js
  */
