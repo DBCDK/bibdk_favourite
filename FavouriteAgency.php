@@ -21,7 +21,27 @@ class FavouriteAgency extends TingAgency {
   public function getUserData() {
     return $this->userData;
   }
-
+  
+  /** Get userid for favourite
+   * 
+   * There are a number of possible userids. Run through userdata and return
+   * the first found
+   * 
+   * @return boolean 
+   */
+   public function getUserId() {
+     $possibilities = array('cpr','userId','barcode','cardno','customId',);
+     foreach ($possibilities as $pos) {
+       if (isset($this->userData[$pos])) {
+         return $this->userData[$pos];
+       }
+     }
+     return FALSE;
+   }
+   
+   public function getPinCode () {
+     return isset($this->userData['pincode']) ? $this->userData['pincode'] : FALSE;
+   }
 }
 
 ?>
