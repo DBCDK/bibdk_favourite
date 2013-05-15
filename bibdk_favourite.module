@@ -525,24 +525,17 @@ function _bibdk_favourite_get_from_webservice() {
     $saved_agencies = bibdk_favourite_parse_agencies($xml);
 
     if (!$saved_agencies) {
-      //drupal_set_message(t('bibdk_favourite_something_went_wrong', array(), array('context' => 'bibdk_favourite')), 'error');
       return array();
     }
-    // get the real agency(branch)
-    $client = new ting_client_class();
     $agencies = array();
     foreach ($saved_agencies as $key => $agency) {
-      $params = array('action' => 'findLibraryRequest', 'agencyId' => $agency['oui:agencyId']);
-      // call openagency webservice to get full agencies
-      // @TODO cache
-      $result = $client->do_agency($params);
-      if (isset($result->findLibraryResponse->pickupAgency)) {
-        // there should be one and only one agency in result
-        $obj = new TingClientAgencyBranch($result->findLibraryResponse->pickupAgency[0]);
-        $obj->userdata = unserialize($saved_agencies[$key]['oui:userData']);
-        $obj->orderLibrary = $saved_agencies[$key]['oui:orderAgency'];
-        $agencies[$agency['oui:agencyId']] = $obj;
-        $saved_agencies[$key]['agencyBranch'] = $obj;
+      $fav = new TingAgency($agency['oui:agencyId']);
+      $branch = $fav->getBranch();
+      if (isset($branch)) {
+        $branch->userdata = unserialize($saved_agencies[$key]['oui:userData']);
+        $branch->orderLibrary = $saved_agencies[$key]['oui:orderAgency'];
+        $agencies[$agency['oui:agencyId']] = $branch;
+        $saved_agencies[$key]['agencyBranch'] = $branch;
       }
     }
     return bibdk_favourite_check_agencies($saved_agencies);
