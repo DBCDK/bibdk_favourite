@@ -42,6 +42,14 @@ class FavouriteAgency extends TingAgency {
    public function getPinCode () {
      return isset($this->userData['pincode']) ? $this->userData['pincode'] : FALSE;
    }
+   
+   public function getUserStatus() { 
+     return isset($_SESSION['userStatus'][$this->getAgencyId()]) ? $_SESSION['userStatus'][$this->getAgencyId()] : FALSE;
+   }
+   
+   public function setUserStatus($res){
+     $_SESSION['userStatus'][$this->getAgencyId()] = $res;
+   }
 }
 
 ?>
