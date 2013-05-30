@@ -46,7 +46,7 @@ class FavouriteAgency extends TingAgency {
   public function getUserStatus() {
     // check if userstatus is already in $_SESSION
     if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
-     // dpm('CACHEHIT');
+      // dpm('CACHEHIT');
       return $_SESSION['userStatus'][$this->getAgencyId()];
     }
     //dpm('CACHEMISS');
@@ -69,23 +69,37 @@ class FavouriteAgency extends TingAgency {
     // cannot retrive userstatus
     return FALSE;
   }
-  
+
   public function cancelOrder(array $orders) {
     $userId = $this->getUserId();
     $userPincode = $this->getPinCode();
     $libraryCode = $this->getAgencyId();
-    
-    $response = ting_openuserstatus_do_cancelorder($userId, $userPincode, $libraryCode, $orders);
-    
-    return $response;
-    
-  }
-  
-  
 
-  public function setUserStatus($res) {
-    $_SESSION['userStatus'][$this->getAgencyId()] = $res;
+    $response = ting_openuserstatus_do_cancelorder($userId, $userPincode, $libraryCode, $orders);
+    if (empty($response['error'])) {
+      // an order has been cancelled. clear userstatus to update
+      $this->clearUserStatus();
+    }
+    return $response;
   }
-}
+  
+  public function updateOrder (array $updateOrders) {
+    $userId = $this->getUserId();
+    $userPincode = $this->getPinCode();
+    $libraryCode = $this->getAgencyId();
+  
+    $response = ting_openuserstatus_do_update_order($userId, $userPincode, $libraryCode, $updateOrders);
+    if (empty($response['error'])) {
+      // an order has been updated. clear userstatus to update
+      $this->clearUserStatus();
+    }
+    return $response;
+  }
+
+  public function clearUserStatus() {
+    if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
+      unset($_SESSION['userStatus'][$this->getAgencyId()]);
+    }
+  }
 
 ?>
