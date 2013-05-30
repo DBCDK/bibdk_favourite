@@ -101,5 +101,6 @@ class FavouriteAgency extends TingAgency {
       unset($_SESSION['userStatus'][$this->getAgencyId()]);
     }
   }
+}
 
 ?>
