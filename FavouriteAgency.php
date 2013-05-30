@@ -75,38 +75,46 @@ class FavouriteAgency extends TingAgency {
     $userPincode = $this->getPinCode();
     $libraryCode = $this->getAgencyId();
 
-    $response = ting_openuserstatus_do_cancelorder($userId, $userPincode, $libraryCode, $orders);
-    if (empty($response['error'])) {
-      // an order has been cancelled. clear userstatus to update
-      $this->clearUserStatus();
+    if (module_exists('ting_openuserstatus')) {
+      $response = ting_openuserstatus_do_cancelorder($userId, $userPincode, $libraryCode, $orders);
+      if (empty($response['error'])) {
+        // an order has been cancelled. clear userstatus to update
+        $this->clearUserStatus();
+      }
+      return $response;
     }
-    return $response;
+    return FALSE;
   }
-  
-  public function updateOrder (array $updateOrders) {
+
+  public function updateOrder(array $updateOrders) {
     $userId = $this->getUserId();
     $userPincode = $this->getPinCode();
     $libraryCode = $this->getAgencyId();
-  
-    $response = ting_openuserstatus_do_update_order($userId, $userPincode, $libraryCode, $updateOrders);
-    if (empty($response['error'])) {
-      // an order has been updated. clear userstatus to update
-      $this->clearUserStatus();
+
+    if (module_exists('ting_openuserstatus')) {
+      $response = ting_openuserstatus_do_update_order($userId, $userPincode, $libraryCode, $updateOrders);
+      if (empty($response['error'])) {
+        // an order has been updated. clear userstatus to update
+        $this->clearUserStatus();
+      }
+      return $response;
     }
-    return $response;
+    return FALSE;
   }
-  
+
   public function renewLoan(array $loans) {
     $userId = $this->getUserId();
     $userPincode = $this->getPinCode();
     $libraryCode = $this->getAgencyId();
-  
-    $response = ting_openuserstatus_do_renew_loan($userId, $userPincode, $libraryCode, $loans);
-    if (empty($response['error'])) {
-      // an order has been updated. clear userstatus to update
-      $this->clearUserStatus();
+    if (module_exists('ting_openuserstatus')) {
+      $response = ting_openuserstatus_do_renew_loan($userId, $userPincode, $libraryCode, $loans);
+      if (empty($response['error'])) {
+        // an order has been updated. clear userstatus to update
+        $this->clearUserStatus();
+      }
+      return $response;
     }
-    return $response;
+    return FALSE;
   }
 
   public function clearUserStatus() {
@@ -114,6 +122,7 @@ class FavouriteAgency extends TingAgency {
       unset($_SESSION['userStatus'][$this->getAgencyId()]);
     }
   }
+
 }
 
 ?>
