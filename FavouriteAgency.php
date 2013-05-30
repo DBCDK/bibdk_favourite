@@ -95,6 +95,19 @@ class FavouriteAgency extends TingAgency {
     }
     return $response;
   }
+  
+  public function renewLoan(array $loans) {
+    $userId = $this->getUserId();
+    $userPincode = $this->getPinCode();
+    $libraryCode = $this->getAgencyId();
+  
+    $response = ting_openuserstatus_do_renew_loan($userId, $userPincode, $libraryCode, $loans);
+    if (empty($response['error'])) {
+      // an order has been updated. clear userstatus to update
+      $this->clearUserStatus();
+    }
+    return $response;
+  }
 
   public function clearUserStatus() {
     if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
