@@ -46,8 +46,10 @@ class FavouriteAgency extends TingAgency {
   public function getUserStatus() {
     // check if userstatus is already in $_SESSION
     if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
+     // dpm('CACHEHIT');
       return $_SESSION['userStatus'][$this->getAgencyId()];
     }
+    //dpm('CACHEMISS');
     // get parameters
     $userId = $this->getUserId();
     $userPincode = $this->getPinCode();
@@ -67,11 +69,23 @@ class FavouriteAgency extends TingAgency {
     // cannot retrive userstatus
     return FALSE;
   }
+  
+  public function cancelOrder(array $orders) {
+    $userId = $this->getUserId();
+    $userPincode = $this->getPinCode();
+    $libraryCode = $this->getAgencyId();
+    
+    $response = ting_openuserstatus_do_cancelorder($userId, $userPincode, $libraryCode, $orders);
+    
+    return $response;
+    
+  }
+  
+  
 
   public function setUserStatus($res) {
     $_SESSION['userStatus'][$this->getAgencyId()] = $res;
   }
-
 }
 
 ?>
