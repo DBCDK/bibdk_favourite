@@ -46,10 +46,8 @@ class FavouriteAgency extends TingAgency {
   public function getUserStatus() {
     // check if userstatus is already in $_SESSION
     if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
-      // dpm('CACHEHIT');
       return $_SESSION['userStatus'][$this->getAgencyId()];
     }
-    //dpm('CACHEMISS');
     // get parameters
     $userId = $this->getUserId();
     $userPincode = $this->getPinCode();
