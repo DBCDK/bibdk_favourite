@@ -110,7 +110,7 @@ class FavouriteAgency extends TingAgency {
         // an order has been updated. clear userstatus to update
         $this->clearUserStatus();
       }
-      return $response;
+      return $this->parseFields($response);
     }
     return FALSE;
   }
@@ -121,6 +121,32 @@ class FavouriteAgency extends TingAgency {
     }
   }
 
+  /**
+   * @param $object
+   * @return array
+   */
+  private function parseFields($object) {
+    if (is_object($object)) {
+      $object = (array)$object;
+    }
+    if (is_array($object)) {
+      $arr = array();
+      foreach ($object as $key => $val) {
+        if ($key !== '@') {
+          if ($key === '$') {
+            $arr = $this->parseFields($val);
+          }
+          else {
+            $arr[$key] = $this->parseFields($val);
+          }
+        }
+      }
+    }
+    else {
+      $arr = $object;
+    }
+    return $arr;
+  }
 }
 
 ?>
