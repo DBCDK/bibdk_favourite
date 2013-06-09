@@ -116,7 +116,8 @@ class FavouriteAgency extends TingAgency {
   }
 
   public function clearUserStatus() {
-    if (isset($_SESSION['userStatus'][$this->getAgencyId()])) {
+    global $drupal_test_info;
+    if (isset($_SESSION['userStatus'][$this->getAgencyId()]) && !isset($drupal_test_info)) {
       unset($_SESSION['userStatus'][$this->getAgencyId()]);
     }
   }
@@ -148,5 +149,3 @@ class FavouriteAgency extends TingAgency {
     return $arr;
   }
 }
-
-?>
