@@ -3,71 +3,51 @@
 /**
  * Implements hook_bibdk_mypage_tabs().
  */
-function bibdk_favourite_bibdk_mypage_tabs($max_rows=3) {
-
+function bibdk_favourite_bibdk_mypage_tabs($max_rows = 3) {
   global $user;
   require_once (DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 
-  $form['bibdk_favourite'] = array(
-    '#type'         => 'fieldset',
-    '#tree'         => TRUE,
-    '#theme'        => 'bibdk_mypage-form',
-    '#attributes'   => array('class' => array('element-wrapper', 'bibdk-mypage-wrapper')),
+  global $user;
+
+  $ret = array();
+  $ret['bibdk_favourite']['header'] = t('Favourites');
+  $ret['bibdk_favourite']['rows']['values'] = bibdk_favourite_my_page_get_rows($max_rows);
+  $ret['bibdk_favourite']['link'] = array(
+    'title' => t('Edit favorites'),
+    'href' => 'user/' . $user->uid . '/edit/bibdk_favourite_list',
   );
 
-  $form['bibdk_favourite']['header'] = array(
-    '#type'           => 'markup',
-    '#markup'         => t('Favourites'),
-  );
+  return $ret;
+}
 
-  $form['bibdk_favourite']['rows'] = array(
-    '#type'         => 'fieldset',
-    '#tree'         => TRUE,
-  );
-
+function bibdk_favourite_my_page_get_rows($max_rows) {
   $agencies = _bibdk_favourite_get_from_webservice();
 
   usort($agencies, '_favorite_sort');
-  if ( sizeof($agencies) > 0 ) {
+  if (sizeof($agencies) > 0) {
     $agencies = array_slice($agencies, 0, $max_rows);
     foreach ($agencies as $id => $favourite) {
       $branch = $favourite->getBranch();
       if (empty($branch)) {
-        break;
+        continue;
       }
-      $form['bibdk_favourite']['rows'][$id] = array(
-        'label_row'  => array(
-                            '#type'     => 'markup',
-                            '#markup'   => $branch->branchName,
-                           ),
-        'value_row'  => array(
-                            '#type'     => 'markup',
-                            '#markup'   => ( $favourite->orderAgency ) ? t('(Order agency)') : NULL,
-                           ),
+      $ret[] = array(
+        'label_row' => $branch->branchName,
+        'value_row' => ( $favourite->orderAgency ) ? t('(Order agency)') : NULL,
       );
     }
   }
   else {
-    $form['bibdk_favourite']['rows'][] = array(
-      'item_row'  => array(
-        '#type'     => 'markup',
-        '#markup'   => t('No favourites selected yet'),
-       ),
+    $ret[] = array(
+      'item_row' => t('No favourites selected yet'),
     );
   }
 
-  $form['bibdk_favourite']['link_profile2_tab'] = array(
-    '#type'           => 'link',
-    '#title'          => t('Edit favorites'),
-    '#title_display'  => 'invisible',
-    '#href'           => 'user/' . $user->uid . '/edit/bibdk_favourite_list',
-    '#options'        => array('attributes' => array('title' => t('Edit favorites'))),
-  );
-
-  return $form;
+  return $ret;
 }
 
-function _favorite_sort($a,$b) {
-  if ( $a->orderAgency == $b->orderAgency ) return 0;
+function _favorite_sort($a, $b) {
+  if ($a->orderAgency == $b->orderAgency)
+    return 0;
   return ( $a->orderAgency < $b->orderAgency ) ? 1 : -1;
 }
