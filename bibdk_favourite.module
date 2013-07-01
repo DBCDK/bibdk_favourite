@@ -9,8 +9,6 @@ require_once('FavouriteAgency.php');
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
  * */
 function bibdk_favourite_add_to_vejviser($branchId) {
-  // $ret = drupal_get_form('bibdk_favourite_select_form', $branchId);
-  // return drupal_render($ret);
   return bibdk_favourite_list_link($branchId);
 }
 
@@ -214,6 +212,9 @@ function _bibdk_favourite_set_agencies() {
 
 function bibdk_favourite_get_forms() {
   // add agency if request comes from vejviser ( $_GET['agency'] is set )
+  
+  drupal_set_title(t('Searchhistory'));
+  
   bibdk_favourite_check_for_new_agency();
 
   $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
