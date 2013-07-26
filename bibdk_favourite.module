@@ -432,9 +432,55 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     '#type' => 'hidden',
     '#value' => $branchid,
   );
-
+  
+  $form['#validate'] = array('bibdk_favourite_borchk');
   $form['wrapper']['submit'] = $action;
   return $form;
+}
+
+function bibdk_favourite_borchk($form, $form_state) {
+  // check for form errors
+  $errors = form_get_errors();
+  if (empty($errors)) {
+    // validate via borchk
+    // we know that userid, pincode and library code is set (required values on form)
+    // get library code from menu
+    $args = arg();
+    // last arg is librarycode
+    $libraryCode = end($args);
+    $userId = $form_state['values']['userId'];
+    $userPincode = $form_state['values']['pincode'];
+    $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml');
+    $result = bibdk_favourite_parse_borchk($response);
+    if ($result['status'] == 'error'){
+      form_set_error('userid',t($result['message'],array(),array('context'=>'bibdk_favourite_borchk')));
+    }
+  }
+}
+
+/**
+ *
+ * @param string $response (xml from borchk) 
+ */
+function bibdk_favourite_parse_borchk($response) {
+  $dom = new DOMDocument();
+  if (!@$dom->loadXML($response)) {
+    $result['status'] = 'error';
+    $result['message'] = t('invalid response from borchk',array(), array('context'=>'bibdk_favourite_borchk'));
+    watchdog('borchk','invalid response from borchk %response' , array('%response'=>$response), WATCHDOG_ERROR);
+    return $result;
+  }
+  $xpath = new DOMXPath($dom);
+  $xpath->registerNamespace('ns', 'http://oss.dbc.dk/ns/borchk');
+  $query = '//ns:requestStatus';
+  $nodelist = $xpath->query($query);
+  $status = $nodelist->item(0)->nodeValue;
+  if ($status != 'ok') {
+    $result['status'] = 'error';
+    $result['message'] = $status;
+    return $result;
+  }
+  return array('status'=>'ok');
 }
 
 function bibdk_favourite_set_userdata($form, &$form_state) {
