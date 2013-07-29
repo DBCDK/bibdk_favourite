@@ -5,6 +5,7 @@ core = 7.x
 version = 7.x-0.16
 dependencies[] = ding_provider
 dependencies[] = ting_agency
+dependencies[] = bibdk_borchk
 ; tests (needs review - testing against live (dead) webservices)
 files[] = bibdk_favourite.test
 files[] = bibdk_favourite.agencies.inc
