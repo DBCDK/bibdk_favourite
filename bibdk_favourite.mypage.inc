@@ -31,8 +31,9 @@ function bibdk_favourite_my_page_get_rows($max_rows) {
       if (empty($branch)) {
         continue;
       }
+      global $language;
       $ret[] = array(
-        'label_row' => $branch->branchName,
+        'label_row' => $branch->getBranchName($language->language),
         'value_row' => ( $favourite->orderAgency ) ? t('(Order agency)') : NULL,
       );
     }

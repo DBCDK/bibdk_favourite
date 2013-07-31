@@ -95,8 +95,9 @@ function bibdk_favourite_save_favourite_on_webservice($branchId) {
 
     $check = bibdk_favourite_check_agencies($new_agency, TRUE);
     if ($check) {
+      global $language;
       bibdk_favourite_add_favourite_to_session($check[$branchId]);
-      $bibname = $check[$branchId]->getBranch()->branchName;
+      $bibname = $check[$branchId]->getBranch()->getBranchName($language->language);
       $message = t('@bibname has been added to your favourite libraries', array('@bibname' => $bibname));
     }
   }
@@ -242,7 +243,8 @@ function bibdk_favourite_check_for_new_agency() {
         }
         // get the agency
         $agency = new TingAgency($_GET['agency']);
-        $name = $agency->getBranch()->branchName;
+        global $language;
+        $name = $agency->getBranch()->getBranchName($language->language);
 
         // set a message
         $editpath = 'overlay/favourite/userdata/' . $_GET['agency'];
@@ -274,7 +276,7 @@ function bibdk_favourite_empty_favourite_form($form, &$form_state) {
  * the form to be displayed on profile tab
  * */
 function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favourite, $weight) {
-
+global $language;
 
   require_once('FavouriteAgency.php');
   require_once(DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
@@ -288,10 +290,7 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
   }
   // check if given branch is set as order-agency
   $order_class = ($fav->getOrderAgency()) ? 'order-agency' : '';
-
-  $form['#title'] = $branch->branchName;
   $links = bibdk_favourite_get_action_links($fav);
-
   $actions = theme('bibdk_favourite_action_links', array('links' => $links));
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
@@ -305,12 +304,11 @@ function bibdk_favourite_form_view_items_from_session($form, &$form_state, $favo
   $classes[] = 'favourite_' . $fav->getAgencyId();
   $classes[] = ($fav->getOrderAgency()) ? 'order-agency' : NULL;
 
-  $form[$fav->getAgencyId()]['library']['#markup'] =
-    theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+   $form[$fav->getAgencyId()]['library']['#markup'] =
+    theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   // place branch on top if set as order-agency
   $form[$fav->getAgencyId()]['#weight'] = ($fav->getOrderAgency()) ? -1 : $weight;
-
 
   return $form;
 }
@@ -375,7 +373,9 @@ function _bibdk_favourite_set_user_data_page_title($branchid) {
   if (isset($_SESSION['bibdk_favourites'][$branchid])) {
     $favourite = unserialize($_SESSION['bibdk_favourites'][$branchid]);
     $branch = $favourite->getBranch();
-    $branchName = isset($branch->branchName) ? $branch->branchName : '';
+    global $language;
+    $name = $branch->getBranchName($language->language);
+    $branchName = isset($name) ? $name : '';
   }
   return t('Edit data for @library', array('@library' => $branchName));
 }
