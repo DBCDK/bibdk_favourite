@@ -420,14 +420,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     //  return array();
   }
   $fields = bibdk_favourite_get_agency_fields($branchid);
-
-  $form['wrapper'] = array(
-    '#type' => 'container',
-    '#attributes' => array('class' => array('form-section')),
-  );
-  // Render fields and populate with user data
-  $form['wrapper']['userfields'] = ting_agency_userdata_form($form, $form_state, $fields, $userData);
-
+  
+  $form = ting_agency_userdata_form($form, $form_state, $fields, $userData);
+  
   $form['branchid'] = array(
     '#type' => 'hidden',
     '#value' => $branchid,
@@ -435,6 +430,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
   
   $form['#validate'] = array('bibdk_favourite_borchk');
   $form['wrapper']['submit'] = $action;
+ 
   return $form;
 }
 
