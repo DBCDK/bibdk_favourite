@@ -444,7 +444,8 @@ function bibdk_favourite_borchk($form, $form_state) {
     $args = arg();
     // last arg is librarycode
     $libraryCode = end($args);
-    $userId = $form_state['values']['userId'];
+
+    $userId = _bibdk_favourite_get_userid_from_array($form_state['values']);
     $userPincode = $form_state['values']['pincode'];
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml');
     $result = bibdk_favourite_parse_borchk($response);
@@ -454,9 +455,25 @@ function bibdk_favourite_borchk($form, $form_state) {
   }
 }
 
+/** Helper function to get the userId out of a form_state
+ * 
+ * @param $values
+ * @return string|null
+ */
+function _bibdk_favourite_get_userid_from_array($values){
+  $possible_userId_keys = array('cpr', 'userId', 'cardno', 'customId');
+  $userId_key = array_intersect($possible_userId_keys, array_keys($values));
+  if (isset($userId_key) && is_array($userId_key)){
+    $userId_key = reset($userId_key);
+    return $values[$userId_key];
+  }
+
+  return null;
+}
+
 /**
  *
- * @param string $response (xml from borchk) 
+ * @param string $response (xml from borchk)
  */
 function bibdk_favourite_parse_borchk($response) {
   $dom = new DOMDocument();
