@@ -4,6 +4,9 @@
  */
 
 (function ($){
+    if(typeof(Drupal.ajax) == 'undefined') {
+      return false;   
+    }
     // add this function to Drupal ajax commands
     Drupal.ajax.prototype.commands.favourite_set = function(ajax, response, status){
         var standard_txt = Drupal.t('set_as_favourite');
