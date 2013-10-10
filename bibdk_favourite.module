@@ -5,6 +5,21 @@ require_once('bibdk_favourite.mypage.inc');
 require_once(DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
 
+function bibdk_favourite_get_favourites() {
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+  if (empty($agencies)) {
+    _bibdk_favourite_set_agencies();
+  }
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
+
+  $ret = array();
+  foreach ($agencies as $key => $serialized_agency) {
+    $ret[$key] = unserialize($serialized_agency);
+  }
+
+  return $ret;
+}
+
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
  * */
