@@ -21,7 +21,7 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows = 3) {
 }
 
 function bibdk_favourite_my_page_get_rows($max_rows) {
-  $agencies = _bibdk_favourite_get_from_webservice();
+  $agencies = bibdk_favourite_get_favourites();
 
   usort($agencies, '_favorite_sort');
   if (sizeof($agencies) > 0) {
