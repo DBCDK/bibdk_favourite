@@ -468,9 +468,9 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
 
 function bibdk_favourite_get_selector_for_subagencies($branchId) {
   $options = array();
-  $options = bibdk_openuserstatus_get_pickup_agencies($branchId);
-
   $favourites = bibdk_favourite_get_favourites();
+  $options = $favourites[$branchId]->getPickupAgencySelectList();
+  
   $userdata = $favourites[$branchId]->getUserData();
   $subd = isset($userdata['subdivision']) ? $userdata['subdivision'] : NULL;
 
