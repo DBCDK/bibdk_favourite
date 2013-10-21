@@ -5,6 +5,49 @@ require_once('bibdk_favourite.mypage.inc');
 require_once(DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
 
+
+
+/** Get favourites. If order-agency is set it will be first element
+ *
+ * @return array; an array with agencyId as key, favourite-object as value 
+ */
+function bibdk_favourite_get_favourites() {
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
+  if (empty($agencies)) {
+    _bibdk_favourite_set_agencies();
+  }
+  $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : array();
+
+  $favourites = array();
+  foreach ($agencies as $key => $serialized_agency) {
+    $favourites[$key] = unserialize($serialized_agency);
+  }
+  
+  return _bibdk_favourite_set_favourite_first($favourites);
+}
+
+/** Arrange favourite array with order-agency as first element
+ *
+ * @param array $favourites
+ * @return type 
+ */
+
+function _bibdk_favourite_set_favourite_first(array $favourites) {
+  foreach ($favourites as $key => $fav) {
+    if ($fav -> orderAgency == TRUE){
+      $orderagency = array($key =>$fav);
+      break;
+    }
+  }
+  if (isset($orderagency)) {
+    $favourites = $orderagency + $favourites;
+  }
+  
+  return $favourites;
+}
+
+
+
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
  * */
@@ -437,16 +480,24 @@ function bibdk_favourite_borchk($form, $form_state) {
     // validate via borchk
     // we know that userid, pincode and library code is set (required values on form)
     // get library code from menu
+    
     $args = arg();
     // last arg is librarycode
     $libraryCode = end($args);
-
     $userId = _bibdk_favourite_get_userid_from_array($form_state['values']);
-    $userPincode = $form_state['values']['pincode'];
-    $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml');
-    $result = bibdk_favourite_parse_borchk($response);
-    if ($result['status'] == 'error'){
-      form_set_error('userid',t($result['message'],array(),array('context'=>'bibdk_favourite_borchk')));
+    $fields = bibdk_favourite_get_agency_fields($libraryCode); 
+    
+    // Check for - isBorrowerCheckRequired
+    if ($fields->isBorrowerCheckRequired() == true) {    
+      // Do validate userdata
+      $userPincode = $form_state['values']['pincode'];
+      $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml');
+      $result = bibdk_favourite_parse_borchk($response);
+      if ($result['status'] == 'error'){
+         form_set_error('userid',t($result['message'],array(),array('context'=>'bibdk_favourite_borchk')));
+      }
+    } else {
+      // Dcd ,,o not validate userdata
     }
   }
 }
