@@ -22,7 +22,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     return array(
       'name' => 'Bibdk favourite',
       'description' => t('Test create/delete of bibdk_favourite_list profile2 type'),
-      'group' => 'bibliotek.dk',
+      'group' => 'Bibliotek.dk - Favourites',
     );
   }
 

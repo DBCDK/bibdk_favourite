@@ -1,0 +1,12 @@
+<?php
+
+class BibdkFavouriteUnittest extends DrupalUnitTestCase {
+
+  public function getInfo() {
+    return array(
+      'name' => 'Bibdk favourite unit tests',
+      'description' => 'Testing simple module functions having no sideeffects.',
+      'group' => 'Bibliotek.dk - Favourites',
+    );
+  }
+}
