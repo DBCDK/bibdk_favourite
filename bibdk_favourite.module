@@ -31,16 +31,13 @@ function bibdk_favourite_get_favourites() {
  * @param array $favourites
  * @return type 
  */
-
 function _bibdk_favourite_set_favourite_first(array $favourites) {
   foreach ($favourites as $key => $fav) {
-    if ($fav -> orderAgency == TRUE){
-      $orderagency = array($key =>$fav);
+    if ($fav->orderAgency) {
+      $orderagency = array($key => $fav);
+      $favourites = $orderagency + $favourites;
       break;
     }
-  }
-  if (isset($orderagency)) {
-    $favourites = $orderagency + $favourites;
   }
   
   return $favourites;
