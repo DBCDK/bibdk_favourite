@@ -10,11 +10,8 @@
  */
 class bibdkFavouriteTest extends DrupalWebTestCase {
 
-  function setUp() {
-//$this->profile = 'minimal';
+  public function setUp() {
     parent::setUp(array('profile2', 'ding_user', 'bibdk_test_provider', 'openagency_webservice_mockup'));
-// variable_set('bibdk_provider_webservice_url','http://guesstimate.dbc.dk/~pjo/webservices/OpenUserInfo/trunk/server.php');
-// variable_set('bibdk_provider_security_code','testhest');
     $this->standard_user = $this->drupalCreateUser();
   }
 
