@@ -1,10 +1,8 @@
 <?php
 
+module_load_include('php', 'ting_agency', 'TingAgency');
 require_once('bibdk_favourite.mypage.inc');
-
-require_once(DRUPAL_ROOT . '/profiles/bibdk/modules/ting_agency/TingAgency.php');
 require_once('FavouriteAgency.php');
-
 
 
 /** Get favourites. If order-agency is set it will be first element
