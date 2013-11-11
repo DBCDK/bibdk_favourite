@@ -452,10 +452,18 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
     '#value' => $branchid,
   );
 
-  $form['#validate'] = array('bibdk_favourite_borchk');
+  $form['#validate'][] = 'bibdk_favourite_borchk';
+  $form['#validata'][] = 'bibdk_favourite_validate_email';
+  
   $form['wrapper']['submit'] = $action;
 
   return $form;
+}
+
+function bibdk_favourite_validate_email($form, $form_state){
+   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
+    form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_favourite:userdata')));
+  }
 }
 
 function bibdk_favourite_get_selector_for_subagencies($branchId) {
