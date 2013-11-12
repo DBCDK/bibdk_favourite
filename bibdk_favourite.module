@@ -414,6 +414,7 @@ function _bibdk_favourite_set_user_data_page_title($branchid) {
  * Render user fields;
  */
 function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
+  
   bibdk_favourite_add_js();
   
 // set title of page
@@ -453,7 +454,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
   );
 
   $form['#validate'][] = 'bibdk_favourite_borchk';
-  $form['#validata'][] = 'bibdk_favourite_validate_email';
+  $form['#validate'][] = 'bibdk_favourite_validate_email';
   
   $form['wrapper']['submit'] = $action;
 
