@@ -444,10 +444,8 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
 
   $fields = bibdk_favourite_get_agency_fields($branchid);
 
-  $form = ting_agency_userdata_form($form, $form_state, $fields, $userData);
-  
-  $form['wrapper']['subdivision'] = bibdk_favourite_get_selector_for_subagencies($branchid);
-
+  $form = ting_agency_userdata_form($form, $form_state, $fields, $userData, $branchid);
+ 
   $form['branchid'] = array(
     '#type' => 'hidden',
     '#value' => $branchid,
@@ -465,35 +463,6 @@ function bibdk_favourite_validate_email($form, $form_state){
    if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_favourite:userdata')));
   }
-}
-
-function bibdk_favourite_get_selector_for_subagencies($branchId) {
-  $options = array();
-  $favourites = bibdk_favourite_get_favourites();
-  
-  if(empty($favourites)){
-    return;
-  }
-  
-  if(!($favourites[$branchId]->hasSubDivisions($branchId))) {
-    return;
-  }
-  
-  $options = $favourites[$branchId]->getPickupAgencySelectList();
-  $options = $options['Bogbussen:'];
-  
-  $userdata = $favourites[$branchId]->getUserData();
-  $subd = isset($userdata['subdivision']) ? $userdata['subdivision'] : NULL;
-
-  $form_element = array();
-  $form_element = array(
-    '#title' => t('Select bus stop',array(),array('context'=>'bibdk_favourite')),
-    '#type' => 'select',
-    '#options' => $options,
-    '#default_value' => isset($subd) ? $subd : '',
-  );
-
-  return $form_element;
 }
 
 function bibdk_favourite_borchk($form, $form_state) {
