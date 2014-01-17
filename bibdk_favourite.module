@@ -7,7 +7,7 @@ require_once('FavouriteAgency.php');
 
 /** Get favourites. If order-agency is set it will be first element
  *
- * @return array; an array with agencyId as key, favourite-object as value 
+ * @return array; an array with agencyId as key, favourite-object as value
  */
 function bibdk_favourite_get_favourites() {
   $agencies = isset($_SESSION['bibdk_favourites']) ? $_SESSION['bibdk_favourites'] : NULL;
@@ -27,7 +27,7 @@ function bibdk_favourite_get_favourites() {
 /** Arrange favourite array with order-agency as first element
  *
  * @param array $favourites
- * @return type 
+ * @return type
  */
 function _bibdk_favourite_set_favourite_first(array $favourites) {
   foreach ($favourites as $key => $fav) {
@@ -176,7 +176,7 @@ function _bibdk_favourite_delete_on_webservice($branchId) {
   global $user;
   try {
     $creds = ding_user_get_creds($user);
-  } 
+  }
   catch (Exception $e) {
     return FALSE;
   }
@@ -195,7 +195,7 @@ function _bibdk_favourite_save_on_webservice($agencyId) {
   global $user;
   try {
     $creds = ding_user_get_creds($user);
-  } 
+  }
   catch (Exception $e) {
     return FALSE;
   }
@@ -403,9 +403,9 @@ function _bibdk_favourite_set_user_data_page_title($branchid) {
  * Render user fields;
  */
 function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
-  
+
   bibdk_favourite_add_js();
-  
+
 // set title of page
   $page_title = _bibdk_favourite_set_user_data_page_title($branchid);
   drupal_set_title($page_title);
@@ -434,7 +434,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
   $fields = bibdk_favourite_get_agency_fields($branchid);
 
   $form = ting_agency_userdata_form($form, $form_state, $fields, $userData, $branchid);
- 
+
   $form['branchid'] = array(
     '#type' => 'hidden',
     '#value' => $branchid,
@@ -442,7 +442,7 @@ function bibdk_favourite_user_form_fields($form, &$form_state, $branchid) {
 
   $form['#validate'][] = 'bibdk_favourite_borchk';
   $form['#validate'][] = 'bibdk_favourite_validate_email';
-  
+
   $form['wrapper']['submit'] = $action;
 
   return $form;
@@ -484,7 +484,7 @@ function bibdk_favourite_borchk($form, $form_state) {
 }
 
 /** Helper function to get the userId out of a form_state
- * 
+ *
  * @param $values
  * @return string|null
  */
