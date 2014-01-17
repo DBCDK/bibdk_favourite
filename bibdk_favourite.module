@@ -220,20 +220,6 @@ function bibdk_favourite_delete_favourite_from_session($branchId) {
   return $ret;
 }
 
-/**
- * Implememts hook_user_profile_tabs (@see ding_user.module)
- * */
-/*function bibdk_favourite_user_profile2_tabs() {
-  $ret = new stdClass();
-  $ret->label = t('favourites');
-  //$ret->form = 'bibdk_favourite_form_view_items_from_session';
-  $ret->form = bibdk_favourite_get_forms();
-  //'bibdk_favourite_get_forms';
-  $ret->type = 'bibdk_favourite_list';
-
-  return $ret;
-}*/
-
 /** \brief get favourites from webservice and add them to session
  *
  */
@@ -265,6 +251,9 @@ function bibdk_favourite_get_favourites_form($form, $form_state) {
       'class' => array('element-wrapper'),
     )
   );
+
+  // Link to vejviser
+  $form['vejviser_link'] = _bibdk_favourite_get_vejviser_link();
 
   // Make sure new agencies are pulled from webservice
   bibdk_favourite_check_for_new_agency();
@@ -736,10 +725,6 @@ function bibdk_favourite_get_action_links($favourite) {
   $links['delete_favourite']['text'] = t('delete_favourite');
   $links['delete_favourite']['path'] = 'favourite_delete/ajax/' . $favourite->getAgencyId();
   $links['delete_favourite']['attributes'] = array('class' => array('use-ajax', 'delete-favourite'));
-  // $links['set_favourite'] = l($order_txt, 'favourite_set/ajax/' . $favourite->getAgencyId(), array('attributes' => array('class' => array('use-ajax', 'set-default-order-agency', $link_class))));
-  // $links['edit_data'] = l($edit_text, 'overlay/favourite/userdata/' . $favourite->getAgencyId(), array('attributes' => array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'))));
-  // $links['delete_favourite'] = l(t('delete_favourite'), 'favourite_delete/ajax/' . $favourite->getAgencyId(), array('attributes' => array('class' => array('use-ajax', 'delete-favourite'))));
-  //dpm($links);
 
   return $links;
 }
