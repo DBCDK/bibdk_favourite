@@ -14,8 +14,10 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows = 3) {
   $ret['bibdk_favourite']['rows']['values'] = bibdk_favourite_my_page_get_rows($max_rows);
   $ret['bibdk_favourite']['link'] = array(
     'title' => t('Edit favorites'),
-    'href' => 'user/' . $user->uid . '/edit/bibdk_favourite_list',
+    'href' => 'user/' . $user->uid . '/bibdk_favourite_list',
   );
+
+  $ret['bibdk_favourite']['weight'] = 20;
 
   return $ret;
 }
