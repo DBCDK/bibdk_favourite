@@ -79,15 +79,6 @@ function bibdk_favourite_select_form($form, $form_state) {
   return $form;
 }
 
-/**
- * Implements hook_form_FORMID_alter (profile2_form)
- */
-function bibdk_favourite_form_profile2_form_alter(&$form, &$form_state) {
-  if ($form['#user_category'] == 'bibdk_favourite_list') {
-    $form['vejviser_link'] = _bibdk_favourite_get_vejviser_link();
-  }
-}
-
 function _bibdk_favourite_get_vejviser_link() {
   $render = array(
     'link' => array(
