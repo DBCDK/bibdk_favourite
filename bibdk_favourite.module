@@ -529,8 +529,7 @@ function bibdk_favourite_parse_borchk($response) {
   $status = $nodelist->item(0)->nodeValue;
   if ($status != 'ok') {
     $result['status'] = 'error';
-    $result['message'] = $status;
-    return $result;
+    $result['message'] = t($status,array(),array('context'=>'bibdk_favourite_borchk'));
   }
   return array('status' => 'ok');
 }
