@@ -50,7 +50,7 @@ function bibdk_favourite_add_to_vejviser($branchId) {
 
 function bibdk_favourite_list_link($branchId) {
   global $user;
-  $path = 'user/' . $user->uid . '/edit/bibdk_favourite_list';
+  $path = 'user/' . $user->uid . '/bibdk_favourite_list';
   $text = t('Add to favorite libraries');
   $attributes = array('attributes' => array('class' => array('btn-add-library')), 'query' => array('agency' => $branchId));
 
