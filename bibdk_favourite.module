@@ -88,9 +88,6 @@ function _bibdk_favourite_get_vejviser_link() {
       '#options' => array(
         'html' => TRUE,
       ),
-      '#attributes' => array(
-        'class' => array('element-target', 'bibdk-favourite-vejviser-link'),
-      ),
     ),
     '#weight' => -1000,
   );
@@ -235,7 +232,6 @@ function _bibdk_favourite_set_agencies() {
  */
 
 function bibdk_favourite_get_favourites_form($form, $form_state) {
-
   // Create a container for agencies
   $form = array(
     '#type' => 'container',
@@ -245,7 +241,13 @@ function bibdk_favourite_get_favourites_form($form, $form_state) {
   );
 
   // Link to vejviser
-  $form['vejviser_link'] = _bibdk_favourite_get_vejviser_link();
+  $form['vejviser_link_wrapper'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('bibdk-favourite-vejviser-link'),
+    ),
+  );
+  $form['vejviser_link_wrapper']['vejviser_link'] = _bibdk_favourite_get_vejviser_link();
 
   // Make sure new agencies are pulled from webservice
   bibdk_favourite_check_for_new_agency();
@@ -262,7 +264,7 @@ function bibdk_favourite_get_favourites_form($form, $form_state) {
     }
   }
   else {
-    $form['empty'] = bibdk_favourite_empty_favourite_form($form, $form_state);
+    $form['empty'] = bibdk_favourite_empty_favourite_form_element();
   }
 
   return $form;
@@ -293,7 +295,7 @@ function bibdk_favourite_check_for_new_agency() {
   }
 }
 
-function bibdk_favourite_empty_favourite_form($form, &$form_state) {
+function bibdk_favourite_empty_favourite_form_element() {
   $form['container'] = array(
     '#type' => 'container',
     '#attributes' => array(
