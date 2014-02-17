@@ -504,8 +504,11 @@ function bibdk_favourite_parse_borchk($response) {
   if ($status != 'ok') {
     $result['status'] = 'error';
     $result['message'] = t($status,array(),array('context'=>'bibdk_favourite_borchk'));
+  } else 
+  {
+    $result['status'] = 'ok';
   }
-  return array('status' => 'ok');
+  return $result;
 }
 
 function bibdk_favourite_set_userdata($form, &$form_state) {
