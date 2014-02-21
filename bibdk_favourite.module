@@ -289,7 +289,7 @@ function bibdk_favourite_check_for_new_agency() {
         $linktext = t('add_user_data', array(), array('context' => 'bibdk_favorite'));
         $link = l($linktext, $editpath, $options);
         $text = t('%bibname has been added. Remember to ', array('%bibname' => $name), array('context' => 'bibdk_favourite'));
-        drupal_set_message($text . $link);
+        drupal_set_message($text . $link, 'warning');
       }
     }
   }
