@@ -14,7 +14,7 @@ class bibdkFavouriteTest extends DrupalWebTestCase {
     module_enable(array('openagency_webservice_mockup'));
     parent::setUp(array('ding_user', 'bibdk_test_provider', 'ting_agency', 'openagency_webservice_mockup'));
     //$this->standard_user = $this->drupalCreateUser();
-variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/xsd'));
+    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
     variable_set('agency_search_url',  $this->getAbsoluteUrl('/openagency_webservice/'));
     // allow you to log messages with error_log() to "sites/default/files/test.log"
     $logfile = conf_path() . '/files/test.log';
