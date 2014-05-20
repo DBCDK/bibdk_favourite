@@ -8,6 +8,7 @@ function bibdk_favourite_load_agency($xml) {
     }
     return array();
   }
+
   $xpath = new DomXPATH($dom);
   $xpath->registerNamespace('oui', 'http://oss.dbc.dk/ns/openuserinfo');
   return $xpath;
@@ -23,13 +24,16 @@ function bibdk_favourite_parse_agencies($xml) {
   if (empty($xpath)) {
     return FALSE;
   }
-  // grap agencies
-  $query = '//agency';
+  // grab agencies
+  $query = '//oui:agency'; //OpenUserInfo v1.7
   $nodelist = $xpath->query($query);
-
   // check if empty
-  if (empty($nodelist)) {
-    return array();
+  if ( empty($nodelist) || $nodelist->length == 0 ) {
+    $query = '//agency'; // fallback to OpenUserInfo v1.6
+    $nodelist = $xpath->query($query);
+    if ( empty($nodelist) || $nodelist->length == 0 ) {
+      return array();
+    }
   }
 
   $agencies = array();
@@ -43,5 +47,5 @@ function bibdk_favourite_parse_agencies($xml) {
   }
   return $agencies;
 }
-?>
 
+?>
