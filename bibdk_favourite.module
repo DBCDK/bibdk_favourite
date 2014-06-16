@@ -3,9 +3,9 @@
 module_load_include('php', 'ting_agency', 'TingAgency');
 require_once('bibdk_favourite.mypage.inc');
 require_once('FavouriteAgency.php');
+module_load_include('inc','bibdk_favourite','bibdk_favourite.no_favourites');
 
-
-/** Get favourites. If order-agency is set it will be first element
+/** Get favourites. If order-agency is set it will be first elements
  *
  * @return array; an array with agencyId as key, favourite-object as value
  */
