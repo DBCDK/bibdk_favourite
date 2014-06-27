@@ -445,18 +445,18 @@ function bibdk_favourite_borchk($form, $form_state) {
     // validate via borchk
     // we know that userid, pincode and library code is set (required values on form)
     // get library code from menu
-
     $args = arg();
     // last arg is librarycode
     $libraryCode = end($args);
     $userId = _bibdk_favourite_get_userid_from_array($form_state['values']);
+    // get userOrderParameter
     $fields = bibdk_favourite_get_agency_fields($libraryCode);
 
     // Check for - isBorrowerCheckRequired
     if ($fields->isBorrowerCheckRequired() == true) {
       // Do validate userdata
       $userPincode = $form_state['values']['pincode'];
-      $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml');
+      $response = bibdk_borchk_request($userId, $userPincode, $libraryCode, 'xml', 'bibliotek.dk');
       $result = bibdk_favourite_parse_borchk($response);
       if ($result['status'] == 'error') {
         form_set_error('userid', t($result['message'], array(), array('context' => 'bibdk_favourite_borchk')));
