@@ -40,6 +40,12 @@ function _bibdk_favourite_set_favourite_first(array $favourites) {
   return $favourites;
 }
 
+/**
+ * Implements hook to user_help_list
+ * */
+function bibdk_favourite_user_help_list() {
+  return array('favourite_mypage_help_key'=>'favourite_mypage_help_label');
+}
 
 /**
  * Implements hook_add_to_vejviser (@see bibdk_vejviser.module)
