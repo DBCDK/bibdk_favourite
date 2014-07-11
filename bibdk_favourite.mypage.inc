@@ -18,7 +18,8 @@ function bibdk_favourite_bibdk_mypage_tabs($max_rows = 3) {
   );
 
   $ret['bibdk_favourite']['weight'] = 20;
-
+  $ret['bibdk_favourite']['help_text_key'] = 'favourite_mypage_help_key';
+  
   return $ret;
 }
 
