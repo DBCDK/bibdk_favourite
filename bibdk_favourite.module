@@ -727,7 +727,7 @@ function bibdk_favourite_get_action_links($favourite) {
   $links['edit_data'] = array();
   $links['edit_data']['text'] = $edit_text;
   $links['edit_data']['path'] = 'overlay/favourite/userdata/' . $favourite->getAgencyId();
-  $links['edit_data']['attributes'] = array('rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'));
+  $links['edit_data']['attributes'] = array('data-rel' => array('bibdkFavorite'), 'class' => array('edit-personal-info', ' bibdk-popup-link'));
 
   $links['delete_favourite'] = array();
   $links['delete_favourite']['text'] = t('delete_favourite');
