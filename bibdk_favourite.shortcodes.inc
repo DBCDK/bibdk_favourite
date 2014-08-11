@@ -5,7 +5,6 @@
  * @return mixed
  */
 function bibdk_favourite_shortcode_info() {
-  // Quote shortcode example
   $shortcodes['favourite_library'] = array(
     'title' => t('Favourite Library'),
     'description' => t('Insert favourite library'),
@@ -18,6 +17,11 @@ function bibdk_favourite_shortcode_info() {
   return $shortcodes;
 }
 
+/** Callback for [favourite_library] shortcode
+ * @param $attributes
+ * @param $default_text
+ * @return null|string
+ */
 function bibdk_favourite_shortcode_favourite_library($attributes, $default_text) {
   $favourites = array();
   if (ding_user_is_provider_user()) {
@@ -32,6 +36,9 @@ function bibdk_favourite_shortcode_favourite_library($attributes, $default_text)
   return t($default_text);
 }
 
+/** Tip for [favourite_library] shortcode
+ * @return string
+ */
 function bibdk_favourite_shortcode_favourite_library_tip() {
-  return 'dette er en test';
+  return 'Add favourite library contact information by writting: [favourite_library]This text is default text if no favourite exists[/favourite_library]';
 }
