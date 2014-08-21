@@ -6,6 +6,7 @@ version = 7.x-0.36
 dependencies[] = ding_provider
 dependencies[] = ting_agency
 dependencies[] = bibdk_borchk
+dependencies[] = shortcode
 ; tests (needs review - testing against live (dead) webservices)
 files[] = bibdk_favourite.agencies.inc
 files[] = bibdk_favourite.mypage.inc
