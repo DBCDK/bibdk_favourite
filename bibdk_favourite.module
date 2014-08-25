@@ -2,6 +2,7 @@
 
 module_load_include('php', 'ting_agency', 'TingAgency');
 require_once('bibdk_favourite.mypage.inc');
+require_once('bibdk_favourite.shortcodes.inc');
 require_once('FavouriteAgency.php');
 module_load_include('inc','bibdk_favourite','bibdk_favourite.no_favourites');
 
@@ -317,7 +318,7 @@ function bibdk_favourite_empty_favourite_form_element() {
 /**
  * the form to be displayed on profile tab
  * */
-function bibdk_favourite_form_view_items_from_session($favourite, $weight) {
+function bibdk_favourite_form_view_items_from_session($favourite, $weight, $toggle_enabled = true, $action_enabled = true) {
   global $language;
 
   $form = array();
@@ -329,13 +330,14 @@ function bibdk_favourite_form_view_items_from_session($favourite, $weight) {
   // check if given branch is set as order-agency
   $order_class = ($favourite->getOrderAgency()) ? 'order-agency' : '';
   $links = bibdk_favourite_get_action_links($favourite);
-  $actions = theme('bibdk_favourite_action_links', array('links' => $links));
+  $actions = ($action_enabled) ? theme('bibdk_favourite_action_links', array('links' => $links)) : null;
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
       'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
       'tools' => theme('ting_agency_tools', array('branch' => $branch)),
       'address' => theme('ting_agency_address', array('branch' => $branch)),
       'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      'toggle_enabled' => $toggle_enabled,
     )
   );
   $classes = array();
@@ -343,7 +345,7 @@ function bibdk_favourite_form_view_items_from_session($favourite, $weight) {
   $classes[] = ($favourite->getOrderAgency()) ? 'order-agency' : NULL;
 
   $form[$favourite->getAgencyId()]['library']['#markup'] =
-    theme('ting_agency_library', array('branchName' => $branch->getBranchShortName($language->language), 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+    theme('ting_agency_library', array('branchName' => $branch->getBranchShortName($language->language), 'agencyName' => $branch->agencyName, 'actions' => $actions, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId, 'toggle_enabled' => $toggle_enabled));
 
   // place branch on top if set as order-agency
   $form[$favourite->getAgencyId()]['#weight'] = ($favourite->getOrderAgency()) ? -1 : $weight;
@@ -510,7 +512,7 @@ function bibdk_favourite_parse_borchk($response) {
   if ($status != 'ok') {
     $result['status'] = 'error';
     $result['message'] = t($status,array(),array('context'=>'bibdk_favourite_borchk'));
-  } else 
+  } else
   {
     $result['status'] = 'ok';
   }
