@@ -59,11 +59,14 @@ function bibdk_favourite_list_link($branchId) {
   global $user;
   $path = 'user/' . $user->uid . '/bibdk_favourite_list';
   $text = t('Add to favorite libraries');
-  $attributes = array('attributes' => array('class' => array('btn-add-library')), 'query' => array('agency' => $branchId));
+  $options = array('attributes' => array('class' => array('btn-add-library')), 'query' => array('agency' => $branchId), 'html' => 'true');
 
-  $link = l($text, $path, $attributes);
-
-  return $link;
+  return array(
+    '#theme' => 'link',
+    '#text' => $text,
+    '#path' => $path,
+    '#options' => $options,
+  );
 }
 
 /** \brief button to add a library to favourites
@@ -452,10 +455,7 @@ function bibdk_favourite_borchk($form, $form_state) {
   if (empty($errors)) {
     // validate via borchk
     // we know that userid, pincode and library code is set (required values on form)
-    // get library code from menu
-    $args = arg();
-    // last arg is librarycode
-    $libraryCode = end($args);
+    $libraryCode = $form_state['values']['branchid'];
     $userId = _bibdk_favourite_get_userid_from_array($form_state['values']);
     // get userOrderParameter
     $fields = bibdk_favourite_get_agency_fields($libraryCode);
